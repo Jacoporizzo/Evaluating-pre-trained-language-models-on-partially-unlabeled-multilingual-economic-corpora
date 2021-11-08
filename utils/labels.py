@@ -6,6 +6,7 @@ Created on: 29 October 2021 by Jacopo Rizzo
 Last modified on: 29 October 2021
 '''
 import pandas as pd
+import numpy as np
 
 class Label:
 
@@ -34,7 +35,19 @@ class Label:
 
         '''
         cosine_similarity.rename(columns = {'German_sentences': 'Sentences'}, inplace = True)
-        df_merge = cosine_similarity.merge(goldstandards, how = 'inner', on = 'Sentences')
+        goldstd = goldstandards.reset_index(drop = True)
+
+        indices = []
+        for sentence in cosine_similarity['Sentences']:
+            if (goldstd['Sentences'].str.contains(sentence, regex = False)).any():
+                idx = np.where(goldstd['Sentences'].str.contains(sentence, regex = False))[0][0]
+                indices.append(goldstd['Sentences'][idx])
+            else:
+                indices.append('Not a goldstandard')
+
+        cosine_similarity['Sentences'] = pd.Series(indices)
+
+        df_merge = cosine_similarity.merge(goldstd, how = 'inner', on = 'Sentences')
 
         english_hashs = []
         for hashs in df_merge['Hashs']:

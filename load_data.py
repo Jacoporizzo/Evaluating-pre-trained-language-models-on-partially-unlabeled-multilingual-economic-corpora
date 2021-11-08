@@ -21,7 +21,7 @@ german_docs = data['bodyText_y'][0:10]
 trans = Translation()
 cosine_scores = trans.cosine_similarity(english_docs, german_docs)
 
-# Import the goldstandards
+# Import the goldstandards and pick only the present sentences
 goldstd = imp.importgold()
 
 # Compute the english labeled dataframe basing on the cosine similarity outcome

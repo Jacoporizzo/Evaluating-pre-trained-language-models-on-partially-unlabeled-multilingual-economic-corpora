@@ -149,7 +149,7 @@ class Translation:
 
         return df
 
-    def cosine_similarity(self, english_doc, german_doc, model = 'paraphrase-multilingual-mpnet-base-v2'):
+    def cosine_similarity(self, data, english_doc, german_doc, model = 'paraphrase-multilingual-mpnet-base-v2'):
         '''
         Function that computes the embeddings for the single sentences and returns
         the german-english pair with the highest cosine-similarity. For each
@@ -179,11 +179,14 @@ class Translation:
         english = list(english_doc)
         german = list(german_doc)
 
+        english_hashs = list(data['hash_x'])
+        german_hashs = list(data['hash_y'])
+
         model = self.init_model(model)
 
-        german_sen, english_sen, cosine_sim = [], [], []
+        german_sen, english_sen, cosine_sim, eng_hashs, ger_hashs = [], [], [], [], []
 
-        for eng, ger in zip(english, german):
+        for eng, ger, eng_has, ger_has in zip(english, german, english_hashs, german_hashs):
 
             embeddings_eng = model.encode(eng)
             embeddings_ger = model.encode(ger)
@@ -206,10 +209,14 @@ class Translation:
             german_sen.extend(ger)
             english_sen.extend(english_sentence)
             cosine_sim.extend(max_score)
+            eng_hashs.extend([eng_has] * len(english_sentence))
+            ger_hashs.extend([ger_has] * len(english_sentence))
         
         df = pd.DataFrame()
         df['German_sentences'] = pd.Series(german_sen)
         df['English_sentences'] = pd.Series(english_sen)
         df['Cosine_score'] = pd.Series(cosine_sim)
+        df['English_hash'] = pd.Series(eng_hashs)
+        df['German_hash'] = pd.Series(ger_hashs)
         
         return df

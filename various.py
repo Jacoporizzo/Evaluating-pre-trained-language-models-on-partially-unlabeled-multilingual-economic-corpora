@@ -1,42 +1,6 @@
-import pandas as pd
-import nltk
-
-sentence = "At eight o'clock on Saturday evening, Max didn't feel so good. So he decided to go home."
-tokens = nltk.word_tokenize(sentence)
-tokens
-
-tagged = nltk.pos_tag(tokens)
-tagged
-
-entities = nltk.chunk.ne_chunk(tagged)
-entities
-
-#%%
-from sentence_transformers import SentenceTransformer
-
-model = SentenceTransformer('paraphrase-MiniLM-L6-v2')
-
-sentences = ['This framework generates embeddings for each input sentence',
-              'Sentences are passed as a list of string.',
-              'The quick brown fox jumps over the lazy dog.']
-
-embeddings = model.encode(sentences)
-
-for sentence, embedding in zip(sentences, embeddings):
-    print('Sentence:', sentence)
-    print('Embedding:', embedding)
-    print('')
-    
-#%%
-from numpy import dot
-from numpy.linalg import norm
-
-cos_sim = dot(embeddings[0], embeddings[1]) / (norm(embeddings[0])*norm(embeddings[1]))
-
 #%%
 from sentence_transformers import SentenceTransformer, util
 from utils.imports import Import
-import pandas as pd
 
 imp = Import()
 data = imp.findcounterpart()
@@ -67,30 +31,6 @@ for i in range(len(cosine_scores)-1):
         
 # Sort scores in decreasing order
 pairs = sorted(pairs, key = lambda x: x['score'], reverse = True)
-
-#%%
-# Sort in decreasing order and create dataframe just for better overview, at the end
-# probably use the tensor object
-sorted_pairs = []
-sentence_german, sentence_english, score = [], [], []
-
-for pair in pairs[0:100]:
-    i, j = pair['index']
-    sentence_english.append(sentences[i])
-    sentence_german.append(sentences[j])
-    score.append(pair['score'])
-    #sorted_pairs.append("{} \t\t {} \t\t Score: {:.4f}".format(sentences[i], sentences[j], pair['score']))
-
-sentence_german = pd.Series(sentence_german)
-sentence_english = pd.Series(sentence_english)
-score = pd.Series(score)
-
-df = pd.DataFrame()
-df['deu'] = sentence_german
-df['eng'] = sentence_english
-df['score'] = [float(score) for score in score]
-#cos_sim = dot(embeddings[7], embeddings[50]) / (norm(embeddings[7])*norm(embeddings[50]))
-#cosine_score = util.pytorch_cos_sim(embeddings, embeddings)
 
 #%% Working part
 
@@ -252,8 +192,7 @@ singsent_index = np.where(single_sentences.isin(gold_sentences))[0]
 gs_index = np.where(gold_sentences.isin(single_sentences))[0]
 
 test = np.where(gold_sentences.str.contains('Mit der Heliad-Aktie profitieren private und institutionelle Investoren somit mittels eines täglich liquiden Dividendentitels von den Chancen eines diversifizierten Portfolios der interessantesten disruptiven Wachstumsunternehmen im deutschsprachigen Raum.'))[0]
-test = np.where(gold_sentences.str.fullmatch('VERIANOS passt Korridor für das Konzernjahresergebnis 2019 an'))[0]
-'VERIANOS passt Korridor für das Konzernjahresergebnis 2019 an'
+
 
 testlst = []     
 
@@ -279,3 +218,58 @@ indices = []
 
 for sentence in df['German_sentences']:
     indices.append(np.where(goldstd['Sentences'].str.contains(sentence, regex = False))[0])
+
+#%%
+from utils.translations import Translation
+from utils.imports import Import
+
+imp = Import()
+data = imp.findcounterpart()
+eng = data['bodyText_x'][0:10]
+deu = data['bodyText_y'][0:10]
+
+trans = Translation()
+df = trans.cosine_similarity(eng, deu)
+df1 = df.copy()
+
+goldstd = imp.importgold()
+
+gold_lst = list(goldstd['Sentences'])
+sen_lst = list(df['German_sentences'])
+
+indices = [s for s in gold_lst for sen in sen_lst if sen in s]
+for sentence in sen_lst:
+    indices.append(gold_lst.str.contains(sentence, regex = False))
+    
+indices = []
+for sentence in sen_lst: # range(len(sen_lst)):
+    if sentence in gold_lst:
+        indices.append(sentence)
+    else:
+        indices.append('Not a gold standard')
+        
+goldstd_copy = goldstd.copy()        
+goldstd = goldstd_copy.reset_index(drop = True)
+
+gold_sentences = goldstd['Sentences']
+
+indices = []
+for sentence in df['German_sentences']:
+    if (gold_sentences.str.contains(sentence, regex = False)).any():
+        idx = np.where(gold_sentences.str.contains(sentence, regex = False))[0][0]
+        indices.append(gold_sentences[idx])
+    else:
+        indices.append('Not a gold standard')
+
+import pandas as pd            
+df['German_sentences'] = pd.Series(indices)        
+df.rename(columns = {'German_sentences': 'Sentences'}, inplace = True)
+
+df_merge = df.merge(goldstd, how = 'inner', on = 'Sentences')
+
+eng_hashs = []
+for has in df_merge['Hashs']:
+    eng_hashs.append(data[data['hash_y'] == has]['hash_x'].values)
+    
+#%%
+goldtest = goldstd[goldstd['Sentences'].isin(df1['German_sentences'])].reset_index(drop = True)

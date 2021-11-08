@@ -46,30 +46,3 @@ class Label:
         df_merge = df_merge.drop(['Sentences', 'Cosine_score'], axis = 1)
          
         return df_merge
-
-        '''
-        gold_sentences = goldstandards['Sentences']
-        single_sentences = cosine_similarity['German_sentences']
-        indices = []
-
-        for sentence in single_sentences:
-            indices.append(np.where(gold_sentences.str.contains(sentence, regex = False))[0])
-
-        fill_empty_arrays = []
-        for idx in indices:
-            if idx.size == 1:
-                fill_empty_arrays.append(int(idx))
-            else:
-                fill_empty_arrays.append(float(np.array(0.1)))
-
-        sentence_from_idx = []
-        for idx in fill_empty_arrays:
-            try:
-                sentence_from_idx.append(gold_sentences[idx])
-            except:
-                sentence_from_idx.append('Empty')
-
-        cosine_similarity['German_sentences'] = pd.Series(sentence_from_idx)
-
-        return cosine_similarity
-        '''

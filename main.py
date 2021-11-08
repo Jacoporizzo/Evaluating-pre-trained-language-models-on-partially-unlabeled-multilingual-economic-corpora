@@ -29,5 +29,3 @@ label = Label()
 english_labeled = label.merge_labels(data, goldstd, cosine_scores)
 
 print(datetime.now() - start)
-
-# On my laptop about 180 min for entire dataset

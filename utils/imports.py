@@ -36,7 +36,7 @@ class Import:
         data_adhoc = pickle.load(open('data/adHocNews.pkl', 'rb'))
         return data_adhoc
     
-    def importgold(self):
+    def importallgold(self):
         '''
         Function that imports the Goldstandards data.
 
@@ -62,7 +62,7 @@ class Import:
         '''
         # Import data
         data_adhoc = self.importadhoc()
-        data_gold = self.importgold()
+        data_gold = self.importallgold()
         
         # Split according to language
         english = data_adhoc[data_adhoc['language'] == 'English'].reset_index(drop = True)
@@ -75,3 +75,20 @@ class Import:
 
         english_forlabel = english.merge(german_golds, how = 'inner', on = ['dateText', 'timeText'])
         return english_forlabel
+
+    def importgold(self):
+        '''
+        Function that imports only the goldstandards, for which a translation
+        can be found.
+
+        Returns
+        -------
+        data : Dataframe
+            Pandas Datframe of the filtered goldstandards.
+
+        '''
+        pairs = self.findcounterpart()
+        data_gold = self.importallgold()
+
+        data = data_gold[data_gold['Hashs'].isin(pairs['hash_y'])]
+        return data

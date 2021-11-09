@@ -149,7 +149,7 @@ class Translation:
 
         return df
 
-    def cosine_similarity(self, data, english_doc, german_doc, model = 'paraphrase-multilingual-mpnet-base-v2'):
+    def cosine_similarity(self, data, model = 'paraphrase-multilingual-mpnet-base-v2'):
         '''
         Function that computes the embeddings for the single sentences and returns
         the german-english pair with the highest cosine-similarity. For each
@@ -157,12 +157,8 @@ class Translation:
 
         Parameters
         ----------
-        english_doc : Series or list
-            English documents split in sentences, where to look for the translation.
-            
-        german_doc : Series or list
-            German documents split in sentences, for which the best translation 
-            should be find.
+        data : Dataframe
+            Dataframe of the paired ad-hocs, generetaed with Import.findcounterpart().
             
         model : string, optional
             Name of the desired translation model, passed as a string. List of available models 
@@ -176,8 +172,8 @@ class Translation:
             according to the cosine similarity.
 
         '''
-        english = list(english_doc)
-        german = list(german_doc)
+        english = list(data['bodyText_x'])
+        german = list(data['bodyText_y'])
 
         english_hashs = list(data['hash_x'])
         german_hashs = list(data['hash_y'])

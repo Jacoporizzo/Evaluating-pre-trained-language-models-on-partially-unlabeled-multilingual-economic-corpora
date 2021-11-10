@@ -138,7 +138,8 @@ data/
 references/
 
 # Some other files
-*.txt
 *.rsa
 load_data.py
 various.py
+Q&A.txt
+Useful_links.txt

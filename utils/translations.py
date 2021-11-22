@@ -172,12 +172,29 @@ class Translation:
             according to the cosine similarity.
 
         '''
-        english = list(data['bodyText_x'])
-        german = list(data['bodyText_y'])
+        english_text = list(data['bodyText_x'])
+        german_text = list(data['bodyText_y'])
+
+        english_title = list(data['titleText_x'])
+        german_title = list(data['titleText_y'])
+
+        english, german = [], []
+        for tit_eng, bod_eng in zip(english_title, english_text):
+            if tit_eng in bod_eng:
+                english.append(bod_eng)
+            else:
+                english.append([tit_eng] + bod_eng)
+
+        for tit_ger, bod_ger in zip(german_title, german_text):
+            if tit_ger in bod_ger:
+                german.append(bod_ger)
+            else:
+                german.append([tit_ger] + bod_ger)
 
         english_hashs = list(data['hash_x'])
         german_hashs = list(data['hash_y'])
 
+        # Initialize transformer for translations
         model = self.init_model(model)
 
         german_sen, english_sen, cosine_sim, eng_hashs, ger_hashs = [], [], [], [], []

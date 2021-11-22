@@ -18,7 +18,6 @@ class Label:
 
         Parameters
         ----------
-
         goldstandards : Dataframe
             Dataframe of the goldstandards, i.e. Import.importgold.
         

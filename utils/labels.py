@@ -2,8 +2,8 @@
 Topic: Master thesis
 Description: Class for labeling the english sentences
 
-Created on: 29 October 2021 by Jacopo Rizzo
-Last modified on: 29 October 2021
+Created on: 29 October 2021 
+Created by: Jacopo Rizzo
 '''
 import pandas as pd
 import numpy as np

@@ -2,12 +2,12 @@
 Topic: Master thesis
 Description: Class for computing the similarity between translated sentences
 
-Created on: 29 October 2021 by Jacopo Rizzo
-Last modified on: 29 October 2021
+Created on: 29 October 2021
+Created by: Jacopo Rizzo
 '''
-import pandas as pd
 from sentence_transformers import SentenceTransformer, util
-from utils.imports import Import
+import pandas as pd
+import numpy as np
 
 class Translation:
 
@@ -233,3 +233,70 @@ class Translation:
         df['German_hash'] = pd.Series(ger_hashs)
         
         return df
+
+    def gold_pairing(self, data, goldstandard, model = 'paraphrase-multilingual-mpnet-base-v2'):
+
+        # Extract hashs and initialize model
+        unique_hashs = data['hash_y'].unique()
+        model = self.init_model(model)
+
+        # Create lists for output df and start for loop
+        german_sen, english_sen, max_score, german_hash, english_hash = [], [], [], [], []
+        
+        for has in unique_hashs:
+            # Get data for that hash
+            eng_data = data[data['hash_y'] == has].reset_index(drop = True)
+            gold_data = goldstandard[goldstandard['Hashs'] == has].reset_index(drop = True)
+
+            # Concatenate english title and bodyText if first missing
+            english_body = eng_data['bodyText_x'][0]
+            english_doc = []
+            if eng_data['titleText_x'][0] in english_body:
+                english_doc = english_body
+            else:
+                english_doc = [eng_data['titleText_x'][0]] + english_body
+
+            gold_sents = list(gold_data['Sentences'])
+
+            # Compute embeddings
+            embeddings_ger = model.encode(gold_sents)
+            embeddings_eng = model.encode(english_doc)
+
+            # Calculate cosine similarity for single-sentence embeddings 
+            cosine_sim = pd.DataFrame(util.pytorch_cos_sim(embeddings_eng, embeddings_ger), dtype = (float))
+
+            # Add english sentence embeddings to the following embedding (equivalent to adding it to previous sentence)
+            embeddings_eng_pairs = pd.DataFrame(embeddings_eng)
+            embeddings_eng_pairs = (embeddings_eng_pairs.rolling(2).sum()).to_numpy().astype(np.float32)
+
+            # Calculate cosine similarity for paired embeddings
+            cosine_sim_pairs = pd.DataFrame(util.pytorch_cos_sim(embeddings_eng_pairs, embeddings_ger), dtype = (float))
+
+            # Compare df to find the maximum cosine similarity and append accordingly the 
+            # single sentence or the pair of sentences to lists for df
+            for sentence in cosine_sim:
+                max_cosine_single = cosine_sim[sentence].max()
+                max_cosine_pairs = cosine_sim_pairs[sentence].max()
+                german_sen.extend(gold_sents[sentence])
+                if max_cosine_single > max_cosine_pairs:
+                    max_index = cosine_sim[sentence].idxmax()
+                    english_sen.extend(english_body[max_index])
+                    max_score.extend(cosine_sim[sentence][max_index])
+                else:
+                    max_index_pair = cosine_sim_pairs[sentence].idxmax()
+                    english_sen.extend(english_body[max_index_pair-1] + english_body[max_index_pair])
+                    max_score.extend(cosine_sim_pairs[sentence][max_index_pair])
+
+            german_hash.extend(gold_data['Hashs'][0] * len(cosine_sim.loc[0]))
+            english_hash.extend(eng_data['hash_x'][0] * len(cosine_sim.loc[0]))
+
+        # Create dataframe for overview
+        df = pd.DataFrame()
+        df['German_sentences'] = pd.Series(german_sen)
+        df['English_sentences'] = pd.Series(english_sen)
+        df['Cosine_score'] = pd.Series(max_score)
+        df['English_hash'] = pd.Series(english_hash)
+        df['German_hash'] = pd.Series(german_hash)
+        
+        return df
+

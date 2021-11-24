@@ -2,8 +2,8 @@
 Topic: Master thesis
 Description: Class for importing and preparing data
 
-Created on: 22 October 2021 by Jacopo Rizzo
-Last modified on: 22 October 2021
+Created on: 22 October 2021
+Created by: Jacopo Rizzo
 '''
 import pickle
 import pandas as pd

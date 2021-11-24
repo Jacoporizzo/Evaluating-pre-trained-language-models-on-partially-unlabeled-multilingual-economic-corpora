@@ -13,19 +13,15 @@ start = datetime.now()
 imp = Import()
 data = imp.findcounterpart()
 
-# Extract split doc variables for testing
-english_docs = data['bodyText_x'][0:10]
-german_docs = data['bodyText_y'][0:10]
-
 # Compute (cosine) similarity between translated sentences
 trans = Translation()
-cosine_scores = trans.cosine_similarity(english_docs, german_docs)
+cosine_scores = trans.cosine_similarity(data[0:10])
 
 # Import the goldstandards
 goldstd = imp.importgold()
 
 # Compute the english labeled dataframe basing on the cosine similarity outcome
 label = Label()
-english_labeled = label.merge_labels(data, goldstd, cosine_scores)
+english_labeled = label.merge_labels(goldstd, cosine_scores)
 
 print(datetime.now() - start)

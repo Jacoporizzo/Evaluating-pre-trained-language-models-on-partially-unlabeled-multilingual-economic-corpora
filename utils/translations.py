@@ -8,6 +8,7 @@ Created by: Jacopo Rizzo
 from sentence_transformers import SentenceTransformer, util
 import pandas as pd
 import numpy as np
+import torch
 
 class Translation:
 
@@ -149,11 +150,11 @@ class Translation:
 
         return df
 
-    def cosine_similarity(self, data, model = 'paraphrase-multilingual-mpnet-base-v2'):
+    def bodytext_similarity(self, data, model = 'paraphrase-multilingual-mpnet-base-v2'):
         '''
         Function that computes the embeddings for the single sentences and returns
         the german-english pair with the highest cosine-similarity. For each
-        embedding model is the used SBERT model. 
+        embedding, model is the used SBERT model. 
 
         Parameters
         ----------
@@ -234,8 +235,27 @@ class Translation:
         
         return df
 
-    def gold_pairing(self, data, goldstandard, model = 'paraphrase-multilingual-mpnet-base-v2'):
+    def cosine_similarity(self, data, goldstandard, model = 'paraphrase-multilingual-mpnet-base-v2'):
+        '''
+        Compute embeddings for single english sentences and goldstandards' sentences. Compare
+        single and paired (english) embdedings in order to find the best translation.
 
+        Parameters
+        ----------
+        data : Dataframe
+            Dataframe of raw data, i.e. output of Import.findcounterpart().
+        goldstandard : Dataframe
+            Goldstandard data.
+        model : str, optional
+            The SBERT model to use for computing the embeddings. The default 
+            is 'paraphrase-multilingual-mpnet-base-v2'.
+
+        Returns
+        -------
+        df : Dataframe
+            Best translation according to model plus the cosine similarity.
+
+        '''
         # Extract hashs and initialize model
         unique_hashs = data['hash_y'].unique()
         model = self.init_model(model)
@@ -277,18 +297,18 @@ class Translation:
             for sentence in cosine_sim:
                 max_cosine_single = cosine_sim[sentence].max()
                 max_cosine_pairs = cosine_sim_pairs[sentence].max()
-                german_sen.extend(gold_sents[sentence])
+                german_sen.append(gold_sents[sentence])
                 if max_cosine_single > max_cosine_pairs:
                     max_index = cosine_sim[sentence].idxmax()
-                    english_sen.extend(english_body[max_index])
-                    max_score.extend(cosine_sim[sentence][max_index])
+                    english_sen.append(english_doc[max_index])
+                    max_score.append(cosine_sim[sentence][max_index])
                 else:
                     max_index_pair = cosine_sim_pairs[sentence].idxmax()
-                    english_sen.extend(english_body[max_index_pair-1] + english_body[max_index_pair])
-                    max_score.extend(cosine_sim_pairs[sentence][max_index_pair])
+                    english_sen.append(english_doc[max_index_pair-1] + english_doc[max_index_pair])
+                    max_score.append(cosine_sim_pairs[sentence][max_index_pair])
 
-            german_hash.extend(gold_data['Hashs'][0] * len(cosine_sim.loc[0]))
-            english_hash.extend(eng_data['hash_x'][0] * len(cosine_sim.loc[0]))
+            german_hash.extend([gold_data['Hashs'][0]] * len(gold_data))
+            english_hash.extend([eng_data['hash_x'][0]] * len(gold_data))
 
         # Create dataframe for overview
         df = pd.DataFrame()

@@ -304,7 +304,7 @@ class Translation:
                     max_score.append(cosine_sim[sentence][max_index])
                 else:
                     max_index_pair = cosine_sim_pairs[sentence].idxmax()
-                    english_sen.append(english_doc[max_index_pair-1] + english_doc[max_index_pair])
+                    english_sen.append(english_doc[max_index_pair-1] + ' ' + english_doc[max_index_pair])
                     max_score.append(cosine_sim_pairs[sentence][max_index_pair])
 
             german_hash.extend([gold_data['Hashs'][0]] * len(gold_data))

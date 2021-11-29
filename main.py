@@ -35,6 +35,17 @@ print(datetime.now() - start)
 # Import manually labelled dataset
 manual = pd.read_excel('data/Manual_labelling.xlsx', sheet_name = 'Sheet1')
 
-# comparison = pd.DataFrame([manual['English_manual'],
-#                            manual['English_cosine_output'],
-#                            (manual['English_manual'] == manual['English_cosine_output'])])
+# Get absolute and relative frequency of manual equals output
+manual['Manual_equals_output'].sum()
+manual['Manual_equals_output'].sum() / len(manual['Manual_equals_output'])
+
+# Create confusion matrix
+df_conf = pd.DataFrame([manual['English_manual'], 
+                        manual['English_cosine_output']]).T
+
+df_conf.rename(columns = {'English_manual': 'Actual_translation', 
+                          'English_cosine_output': 'Predicted_translation'}, inplace = True)
+
+confusion_matrix = pd.crosstab(df_conf['Actual_translation'], 
+                               df_conf['Predicted_translation'], 
+                               rownames = ['Actual'], colnames = ['Predicted'])

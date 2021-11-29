@@ -16,8 +16,8 @@ class Import:
 
         Returns
         -------
-        data_8k : Dataframe
-            Pandas Dataframe containing the 8k-filings data.
+        data_8k : dataframe
+            Dataframe containing the 8k-filings data.
             
         '''
         data_8k = pickle.load(open('data/8kDisclosures.pkl', 'rb'))
@@ -29,8 +29,8 @@ class Import:
 
         Returns
         -------
-        data_adhoc : Dataframe
-            Pandas Dataframe containing the ad-hoc announcements data.
+        data_adhoc : dataframe
+            Dataframe containing the ad-hoc announcements data.
 
         '''
         data_adhoc = pickle.load(open('data/adHocNews.pkl', 'rb'))
@@ -42,8 +42,8 @@ class Import:
 
         Returns
         -------
-        data_goldstandard : Dataframe
-            Pandas Dataframe containing the goldstandards data.
+        data_goldstandard : dataframe
+            Dataframe containing the goldstandards data.
 
         '''
         data_goldstandard = pickle.load(open('data/goldStandardGerman.pkl', 'rb'))
@@ -56,8 +56,8 @@ class Import:
 
         Returns
         -------
-        english_label : Dataframe
-            Merged pandas Dataframe that needs to be reshaped before continuing.
+        english_label : dataframe
+            Merged Dataframe that needs to be reshaped before continuing.
 
         '''
         # Import data
@@ -83,8 +83,8 @@ class Import:
 
         Returns
         -------
-        data : Dataframe
-            Pandas Datframe of the filtered goldstandards.
+        data : dataframe
+            Dataframe of the filtered goldstandards.
 
         '''
         pairs = self.findcounterpart()

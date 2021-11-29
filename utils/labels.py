@@ -18,10 +18,10 @@ class Label:
 
         Parameters
         ----------
-        goldstandards : Dataframe
+        goldstandards : dataframe
             Dataframe of the goldstandards, i.e. Import.importgold.
         
-        cosine_similarity : Dataframe
+        cosine_similarity : dataframe
             Dataframe of the highest cosine similarity between two sentences, i.e.
             result of Translation.cosine_similarity.
 
@@ -92,10 +92,10 @@ class Label:
 
         Parameters
         ----------
-        goldstandards : Dataframe
+        goldstandards : dataframe
             Dataframe of the goldstandards, i.e. Import.importgold.
         
-        cosine_similarity : Dataframe
+        cosine_similarity : dataframe
             Dataframe of the highest cosine similarity between two sentences, i.e.
             result of Translation.cosine_similarity.
 

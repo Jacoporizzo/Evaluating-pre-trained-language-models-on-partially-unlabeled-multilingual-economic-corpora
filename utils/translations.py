@@ -158,7 +158,7 @@ class Translation:
 
         Parameters
         ----------
-        data : Dataframe
+        data : dataframe
             Dataframe of the paired ad-hocs, generetaed with Import.findcounterpart().
             
         model : string, optional
@@ -168,7 +168,7 @@ class Translation:
 
         Returns
         -------
-        df : Dataframe
+        df : dataframe
             Pandas dataframe reporting the best translation for each sentence
             according to the cosine similarity.
 
@@ -242,17 +242,17 @@ class Translation:
 
         Parameters
         ----------
-        data : Dataframe
+        data : dataframe
             Dataframe of raw data, i.e. output of Import.findcounterpart().
-        goldstandard : Dataframe
+        goldstandard : dataframe
             Goldstandard data.
-        model : str, optional
+        model : string, optional
             The SBERT model to use for computing the embeddings. The default 
             is 'paraphrase-multilingual-mpnet-base-v2'.
 
         Returns
         -------
-        df : Dataframe
+        df : dataframe
             Best translation according to model plus the cosine similarity.
 
         '''

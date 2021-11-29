@@ -269,12 +269,12 @@ class Translation:
             gold_data = goldstandard[goldstandard['Hashs'] == has].reset_index(drop = True)
 
             # Concatenate english title and bodyText if first missing
-            english_body = eng_data['bodyText_x'][0]
             english_doc = []
-            if eng_data['titleText_x'][0] in english_body:
-                english_doc = english_body
-            else:
-                english_doc = [eng_data['titleText_x'][0]] + english_body
+            for idx in eng_data.index:
+                if eng_data['titleText_x'][idx] in eng_data['bodyText_x'][idx]:
+                    english_doc.extend(eng_data['bodyText_x'][idx])
+                else:
+                    english_doc.extend([eng_data['titleText_x'][idx]] + eng_data['bodyText_x'][idx])
 
             gold_sents = list(gold_data['Sentences'])
 

@@ -2,15 +2,15 @@
 Topic: Master thesis
 Description: Class for labeling the english sentences
 
-Created on: 29 October 2021 by Jacopo Rizzo
-Last modified on: 29 October 2021
+Created on: 29 October 2021 
+Created by: Jacopo Rizzo
 '''
 import pandas as pd
 import numpy as np
 
 class Label:
 
-    def merge_labels(self, goldstandards, cosine_similarity):
+    def merge_raw(self, goldstandards, cosine_similarity):
         '''
         Merge the result of the cosine-similarity computation with the 
         goldstandards in order to label the english sentences. Works only for 
@@ -18,10 +18,10 @@ class Label:
 
         Parameters
         ----------
-        goldstandards : Dataframe
+        goldstandards : dataframe
             Dataframe of the goldstandards, i.e. Import.importgold.
         
-        cosine_similarity : Dataframe
+        cosine_similarity : dataframe
             Dataframe of the highest cosine similarity between two sentences, i.e.
             result of Translation.cosine_similarity.
 
@@ -83,4 +83,36 @@ class Label:
         df_merge = df_merge.sort_values(['Hashs', 'SentenceNr']).reset_index(drop = True)
         df_merge = df_merge.drop(['Hashs'], axis = 1)
 
+        return df_merge
+
+    def merge_labels(self, cosine_similarity, goldstandards):
+        '''
+        Merge the result of the cosine-similarity computation with the 
+        goldstandards in order to label the english sentences.
+
+        Parameters
+        ----------
+        goldstandards : dataframe
+            Dataframe of the goldstandards, i.e. Import.importgold.
+        
+        cosine_similarity : dataframe
+            Dataframe of the highest cosine similarity between two sentences, i.e.
+            result of Translation.cosine_similarity.
+
+        Returns
+        -------
+        Dataframe
+            English sentences with their labels, ready to use for the classification.
+
+        '''
+        cosines = cosine_similarity.copy()
+        cosines.rename(columns = {'German_sentences': 'Sentences'}, inplace = True)
+        goldstd = goldstandards.reset_index(drop = True)
+
+        # Merge datasets
+        df_merge = cosines.merge(goldstd, how = 'inner', on = 'Sentences')
+        df_merge = df_merge.sort_values(['Hashs', 'SentenceNr']).reset_index(drop = True)
+        df_merge = df_merge.drop(['Hashs'], axis = 1)
+        df_merge = df_merge.drop_duplicates()
+        
         return df_merge

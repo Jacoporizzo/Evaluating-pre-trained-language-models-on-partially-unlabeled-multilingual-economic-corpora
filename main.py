@@ -49,3 +49,9 @@ df_conf.rename(columns = {'English_manual': 'Actual_translation',
 confusion_matrix = pd.crosstab(df_conf['Actual_translation'], 
                                df_conf['Predicted_translation'], 
                                rownames = ['Actual'], colnames = ['Predicted'])
+
+#%% Import preprocessed data
+import pickle 
+
+english_gold = pickle.load(open('data/english_goldstandards.pkl', 'rb'))
+cosines_scores = pickle.load(open('data/cosine_scores.pkl', 'rb'))

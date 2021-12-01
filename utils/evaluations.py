@@ -6,7 +6,6 @@ Created on: 29 November 2021
 Created by: Jacopo Rizzo
 '''
 import pandas as pd
-import numpy as np 
 
 class Evaluation:
 
@@ -23,7 +22,7 @@ class Evaluation:
         Returns
         -------
         df : dataframe
-            Dataframe with equlity check as boolena variable.
+            Dataframe with equlity check as boolean variable.
 
         '''
         manual = manual_labels['English_manual']

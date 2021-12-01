@@ -10,6 +10,8 @@ not reported, but the data are stored in a separate df.
 
 from utils.evaluations import Evaluation
 import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 ## ATTENTION: The following lines (18-33) are commented out and reported 
 ## only for the sake of clarity. These imports and prepare the random
@@ -47,3 +49,24 @@ equality_check = evaluation.is_equal(manual_trans)
 confusion_matrix = evaluation.create_confusion(equality_check)
 
 # Compute evaluations
+true_positives = confusion_matrix['Predicted_1']['Actual_1']
+false_positives = confusion_matrix['Predicted_1']['Actual_0']
+false_negatives = confusion_matrix['Predicted_0']['Actual_1']
+
+precision = true_positives / (true_positives + false_positives)
+
+recall = true_positives / (true_positives + false_negatives)
+
+f1_score = 2 * ((precision * recall) / (precision + recall))
+
+print('Evaluation metrics for random data' + '\n' + 
+      'Precision: {}'.format(round(precision, 4)) + '\n' +
+      'Recall: {}'.format(round(recall, 4)) + '\n' +
+      'F1-Score: {}'.format(round(f1_score, 4)))
+
+# Plot heatmap for the confusion matrix
+ax = plt.axes()
+ax = sns.heatmap(confusion_matrix, ax = ax, annot = True,
+                  annot_kws = {'size': 16}, cmap = 'rocket_r', fmt = 'g')
+ax.set_title('Heatmap for random selected data')
+plt.show()

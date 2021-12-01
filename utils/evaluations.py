@@ -99,3 +99,69 @@ class Evaluation:
         confusion_matrix.index = ['Actual_0', 'Actual_1', 'NA']
 
         return confusion_matrix
+
+    def create_confusionTN(self, equal_comparison, margins=False):
+        '''
+        Create confusion matrix for test dataset.
+
+        Parameters
+        ----------
+        equal_comparison : dataframe
+            Dataframe derived with is_equal().
+
+        Returns
+        -------
+        confusion_matrix : dataframe
+            Confusion matrix for input.
+
+        '''
+        model_output, actual_goldstandard = [], []
+
+        # Get needed data
+        is_equal = equal_comparison['Is_equal']
+        manual_stripped = equal_comparison['Manual_stripped']
+        cosine_stripped = equal_comparison['Cosine_output_stripped']
+
+        # Loop over data and create lists for confusion
+        for value in is_equal.index:
+            if is_equal[value] == True:
+                model_output.append(1)
+                actual_goldstandard.append(1)
+            else:
+                if manual_stripped[value] in cosine_stripped[value]:
+                    model_output.append(1)
+                    actual_goldstandard.append(0)
+                elif cosine_stripped[value] in manual_stripped[value]:
+                    model_output.append(0)
+                    actual_goldstandard.append(1)
+                else:
+                    model_output.append(0)
+                    actual_goldstandard.append(0)
+
+        df_conf = pd.DataFrame([model_output, actual_goldstandard]).T
+        df_conf.columns = ['Model_output', 'Actual_goldstandard']
+
+        # Create confusion matrix and rename columns and rows for better overview
+        if margins == True:
+            confusion_matrix = pd.crosstab(df_conf['Actual_goldstandard'],
+                                           df_conf['Model_output'],
+                                           rownames = ['Actual'], colnames = ['Predicted'], margins = True)
+            confusion_matrix.columns = ['Predicted_0', 'Predicted_1', 'Total']
+            confusion_matrix.index = ['Actual_0', 'Actual_1', 'Total']
+        else:
+            confusion_matrix = pd.crosstab(df_conf['Actual_goldstandard'],
+                                           df_conf['Model_output'],
+                                           rownames = ['Actual'], colnames = ['Predicted'])
+            confusion_matrix.columns = ['Predicted_0', 'Predicted_1']
+            confusion_matrix.index = ['Actual_0', 'Actual_1']
+        
+        # Shape of output matrix is the following
+        #        Prediction (SBERT's output)
+        #          |    0         1
+        # ---------|-----------------
+        #        0 |   TN         FP 
+        # Actual   |
+        #   GS   1 |   FN         TP 
+        #          |
+
+        return confusion_matrix

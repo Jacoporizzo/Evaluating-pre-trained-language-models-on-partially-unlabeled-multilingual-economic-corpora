@@ -131,8 +131,9 @@ dmypy.json
 # VS Code settings
 .vscode/
 
-# data folder
+# various folders
 data/
+images/
 
 # References
 references/

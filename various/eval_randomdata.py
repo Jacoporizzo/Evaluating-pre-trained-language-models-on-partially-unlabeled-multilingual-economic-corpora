@@ -45,3 +45,5 @@ evaluation = Evaluation()
 
 equality_check = evaluation.is_equal(manual_trans)
 confusion_matrix = evaluation.create_confusion(equality_check)
+
+# Compute evaluations

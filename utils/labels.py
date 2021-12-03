@@ -106,11 +106,11 @@ class Label:
 
         '''
         cosines = cosine_similarity.copy()
-        cosines.rename(columns = {'German_sentences': 'Sentences'}, inplace = True)
+        cosines.rename(columns = {'German_sentences': 'Sentences', 'German_hash': 'Hashs'}, inplace = True)
         goldstd = goldstandards.reset_index(drop = True)
 
         # Merge datasets
-        df_merge = cosines.merge(goldstd, how = 'inner', on = 'Sentences')
+        df_merge = cosines.merge(goldstd, how = 'inner', on = ['Sentences', 'Hashs'])
         df_merge = df_merge.sort_values(['Hashs', 'SentenceNr']).reset_index(drop = True)
         df_merge = df_merge.drop(['Hashs'], axis = 1)
         df_merge = df_merge.drop_duplicates()

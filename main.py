@@ -1,34 +1,25 @@
-# First way of setting up the df 
-# import os
-# os.chdir('C:/Users/Jacopo/Desktop/MA')
-from utils.imports import Import
-from utils.translations import Translation
-from utils.labels import Label
-from datetime import datetime
-#import pandas as pd
+# Import preprocessed data
+import pickle 
+import pandas as pd
 
-# Get execution time
-start = datetime.now()
+english_goldstandards = pickle.load(open('data/english_goldstandards.pkl', 'rb'))
+cosines_scores = pickle.load(open('data/cosine_scores.pkl', 'rb'))
 
-# Import german labeled ad-hoc and their english counterpart and goldstandards
-imp = Import()
-data = imp.findcounterpart()
-goldstd = imp.importgold()
+# Clean dataset from same rows (bug-fix)
+prova = english_goldstandards.drop_duplicates(['Sentences', 
+                                               'English_sentences', 
+                                               'Cosine_score', 
+                                               'LabelsString'])
 
-# Extract subdf of the 15 random selected documents, which has also
-# been manually labelled
-#random_data = pd.read_csv('data/random_docs.csv')
-#test_data = data[data['hash_y'].isin(random_data['hash_y'])].reset_index(drop=True)
+cosineshigh = (english_goldstandards['Cosine_score'] > 0.9)
+cosineshigh.sum()
 
-# Compute (cosine) similarity between goldstandards and english sentences
-trans = Translation()
-cosine_scores = trans.cosine_similarity(data, goldstd)
+cosinesaccep = (english_goldstandards['Cosine_score'] > 0.8)
+cosinesaccep.sum()
 
-# Compute the english labeled dataframe basing on the cosine similarity outcome
-label = Label()
-english_labeled = label.merge_labels(cosine_scores, goldstd)
+cosinesborder = (english_goldstandards['Cosine_score'] > 0.7)
+cosinesborder.sum()
 
-cosine_scores.to_pickle('data/cosine_scores.pkl')
-english_labeled.to_pickle('data/english_goldstandards.pkl')
-
-print(datetime.now() - start)
+# Example borderline for cosine 0.7579
+english_goldstandards['Sentences'][23]
+english_goldstandards['English_sentences'][23]

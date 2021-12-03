@@ -4,7 +4,7 @@
 from utils.imports import Import
 from utils.translations import Translation
 from utils.labels import Label
-#from datetime import datetime
+from datetime import datetime
 #import pandas as pd
 
 # Get execution time

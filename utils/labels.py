@@ -114,5 +114,8 @@ class Label:
         df_merge = df_merge.sort_values(['Hashs', 'SentenceNr']).reset_index(drop = True)
         df_merge = df_merge.drop(['Hashs'], axis = 1)
         df_merge = df_merge.drop_duplicates()
+
+        # Rename columns
+        df_merge.rename(columns = {'Sentences': 'German_goldstandards', 'Hashs': 'German_hash'}, inplace = True)
         
         return df_merge

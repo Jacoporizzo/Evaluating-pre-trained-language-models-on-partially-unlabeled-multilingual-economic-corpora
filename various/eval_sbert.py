@@ -6,8 +6,8 @@ the final df with the labelled english sentences.
 import pickle 
 
 # Import data
-cosine_scores = pickle.load(open('data/cosine_scores.pkl', 'rb'))
-english_labelled = pickle.load(open('data/english_goldstandards', 'rb'))
+cosines_scores = pickle.load(open('data/cosine_scores.pkl', 'rb'))
+english_labelled = pickle.load(open('data/english_goldstandards.pkl', 'rb'))
 
 # Get data above a given threshold
 cosines_high = (english_labelled['Cosine_score'] > 0.9)
@@ -23,5 +23,6 @@ print('# Goldstandards with a cosine similarity of' + '\n' +
       '< 0,7: {}'.format(cosines_bad.sum()))
 
 # Example for a borderline example
-english_labelled['Sentences'][23]
-english_labelled['English_sentences'][23]
+english_labelled['Cosine_score'][661]
+english_labelled['Sentences'][661]
+english_labelled['English_sentences'][661]

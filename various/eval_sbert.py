@@ -24,5 +24,5 @@ print('# Goldstandards with a cosine similarity of' + '\n' +
 
 # Example for a borderline example
 english_labelled['Cosine_score'][661]
-english_labelled['Sentences'][661]
+english_labelled['German_goldstandards'][661]
 english_labelled['English_sentences'][661]

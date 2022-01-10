@@ -14,7 +14,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 ## ATTENTION: The following lines (18-33) are commented out and reported 
-## only for the sake of clarity. These imports and prepare the random
+## only for the sake of clarity. These import and prepare the random
 ## selected documents. The df used for the evaluation, containing
 ## the prepared data is stored separately and is imported below.
 

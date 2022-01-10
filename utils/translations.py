@@ -17,6 +17,8 @@ class Translation:
         Concatenate together in one list the single german and english 
         sentences of the same translated document.
 
+        NOT USED!
+
         Parameters
         ----------
         languages : list
@@ -65,6 +67,8 @@ class Translation:
         of document (i.e. the german and the english version of the same document).
         It ouputs for each pair a list of the sorted sentences-pair according
         to their cosine similarity score.
+
+        NOT USED!
 
         Parameters
         ----------
@@ -115,6 +119,8 @@ class Translation:
         Create a pandas Datframe of the sentence pairs and their cosine
         similarity score.
 
+        NOT USED!
+
         Parameters
         ----------
         concatenation : list
@@ -154,7 +160,9 @@ class Translation:
         '''
         Function that computes the embeddings for the single sentences and returns
         the german-english pair with the highest cosine-similarity. For each
-        embedding, model is the used SBERT model. 
+        embedding model is the used SBERT model. 
+
+        NOT USED!
 
         Parameters
         ----------

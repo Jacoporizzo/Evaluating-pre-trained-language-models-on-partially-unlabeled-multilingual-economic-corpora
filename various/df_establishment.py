@@ -8,6 +8,7 @@ the path of the data location before running the script.
 from utils.imports import Import
 from utils.translations import Translation
 from utils.labels import Label
+from utils.helpers import Helper
 from datetime import datetime
 
 # Get execution time
@@ -32,3 +33,8 @@ english_labelled.to_pickle('data/english_goldstandards.pkl')
 
 # Print total computation time
 print(datetime.now() - start)
+
+# Get df to use for finetuning
+helps = Helper()
+df_finetune = helps.get_inputs(english_labelled)
+df_finetune.to_pickle('data/df_finetune.pkl')

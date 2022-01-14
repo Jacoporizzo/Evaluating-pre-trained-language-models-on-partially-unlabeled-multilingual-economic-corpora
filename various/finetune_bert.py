@@ -5,6 +5,7 @@ This script can also be used to fine-tune any
 other model, that is present on the huggingface
 hub.
 '''
+import torch
 import pickle
 import numpy as np
 from datasets import Dataset, load_metric
@@ -27,8 +28,8 @@ training_args = TrainingArguments(
     output_dir = '../results',
     evaluation_strategy = 'epoch',
     learning_rate = 4e-5,
-    per_device_train_batch_size = 32,
-    per_device_eval_batch_size = 32,
+    per_device_train_batch_size = 16,
+    per_device_eval_batch_size = 16,
     num_train_epochs = 12,
     weight_decay = 0.01,
 )
@@ -37,9 +38,19 @@ training_args = TrainingArguments(
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 
 def tokenize_function(input):
-    return tokenizer(input['Text'], padding = 'max_length', truncation = True)
+    return tokenizer(input['text'], padding = 'max_length', truncation = True)
 
 tokenized_df = df.map(tokenize_function, batched = True)
+
+# Prepare data with DataLoader
+train_df = tokenized_df['train']
+test_df = tokenized_df['test']
+
+#train_df.set_format(type = 'torch', columns = ['input_ids', 'token_type_ids', 'attention_mask', 'label'])
+#test_df.set_format(type = 'torch', columns = ['input_ids', 'token_type_ids', 'attention_mask', 'label'])
+
+#dataloader_train = torch.utils.data.DataLoader(train_df, batch_size = 16)
+#dataloader_test = torch.utils.data.DataLoader(test_df, batch_size = 16)
 
 # Define evaluation metric to control during training
 def compute_metric(eval_pred):
@@ -54,7 +65,6 @@ trainer = Trainer(
     args = training_args,
     train_dataset = tokenized_df["train"],
     eval_dataset = tokenized_df["test"],
-    tokenizer = tokenizer,
     compute_metrics = compute_metric
 )
 

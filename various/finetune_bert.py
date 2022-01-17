@@ -5,7 +5,6 @@ This script can also be used to fine-tune any
 other model, that is present on the huggingface
 hub.
 '''
-import torch
 import pickle
 import numpy as np
 from datasets import Dataset, load_metric
@@ -15,7 +14,7 @@ from transformers import (AutoModelForSequenceClassification,
                           Trainer)
 
 # Import data
-data = pickle.load(open('data/df_finetune.pkl', 'rb'))
+data = pickle.load(open('df_finetune.pkl', 'rb'))
 
 # Split dataset into train and test and conversion 
 # to right format. Dataset split: train 80%, test 20%
@@ -23,15 +22,16 @@ df = Dataset.from_pandas(data).train_test_split(0.2, 0.8)
 
 # Model's name and paramaters and metrics
 model_name = 'bert-base-cased'
-metric = load_metric('accuracy')
 training_args = TrainingArguments(
     output_dir = '../results',
-    evaluation_strategy = 'epoch',
+    evaluation_strategy = 'steps',
     learning_rate = 4e-5,
     per_device_train_batch_size = 16,
     per_device_eval_batch_size = 16,
-    num_train_epochs = 12,
+    num_train_epochs = 6,
     weight_decay = 0.01,
+    logging_dir = '../results/logs',
+    logging_first_step = True
 )
 
 # Tokenization
@@ -52,20 +52,24 @@ test_df = tokenized_df['test']
 #dataloader_train = torch.utils.data.DataLoader(train_df, batch_size = 16)
 #dataloader_test = torch.utils.data.DataLoader(test_df, batch_size = 16)
 
-# Define evaluation metric to control during training
+# Define accuracy metric
 def compute_metric(eval_pred):
+    metric = load_metric('accuracy')
     logits, labels = eval_pred
     predictions = np.argmax(logits, axis=-1)
-    return metric.compute(predictions=predictions, references=labels)
+    ref_label = np.argmax(labels, axis = -1)
+    return metric.compute(predictions=predictions, references=ref_label)
 
 # Initialize model and start trainig (i.e. finetuning)
 model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels = 22)
 trainer = Trainer(
     model = model,
     args = training_args,
-    train_dataset = tokenized_df["train"],
-    eval_dataset = tokenized_df["test"],
+    train_dataset = train_df,
+    eval_dataset = test_df,
     compute_metrics = compute_metric
 )
 
 trainer.train()
+trainer.evaluate()
+trainer.save_model('../models')

@@ -14,7 +14,7 @@ from transformers import (AutoModelForSequenceClassification,
                           Trainer)
 
 # Import data
-data = pickle.load(open('df_finetune.pkl', 'rb'))
+data = pickle.load(open('data/df_finetune.pkl', 'rb'))
 
 # Split dataset into train and test and conversion 
 # to right format. Dataset split: train 80%, test 20%
@@ -31,7 +31,10 @@ training_args = TrainingArguments(
     num_train_epochs = 6,
     weight_decay = 0.01,
     logging_dir = '../results/logs',
-    logging_first_step = True
+    logging_first_step = True,
+    logging_strategy = 'epoch',
+    save_strategy = 'epoch',
+    save_total_limit = 1
 )
 
 # Tokenization
@@ -48,9 +51,6 @@ test_df = tokenized_df['test']
 
 #train_df.set_format(type = 'torch', columns = ['input_ids', 'token_type_ids', 'attention_mask', 'label'])
 #test_df.set_format(type = 'torch', columns = ['input_ids', 'token_type_ids', 'attention_mask', 'label'])
-
-#dataloader_train = torch.utils.data.DataLoader(train_df, batch_size = 16)
-#dataloader_test = torch.utils.data.DataLoader(test_df, batch_size = 16)
 
 # Define accuracy metric
 def compute_metric(eval_pred):
@@ -71,5 +71,4 @@ trainer = Trainer(
 )
 
 trainer.train()
-trainer.evaluate()
-trainer.save_model('../models')
+model.save_pretrained('../models')

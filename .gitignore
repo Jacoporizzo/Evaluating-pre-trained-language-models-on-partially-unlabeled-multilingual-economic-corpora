@@ -134,6 +134,8 @@ dmypy.json
 # various folders
 data/
 images/
+results/
+models/
 
 # References
 references/

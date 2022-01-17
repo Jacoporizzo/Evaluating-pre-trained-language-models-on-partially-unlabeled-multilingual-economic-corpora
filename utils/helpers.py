@@ -51,7 +51,7 @@ class Helper:
         binary_labels = data.iloc[:,6:28].astype(int)
 
         df = pd.DataFrame()
-        df['Text'] = data['English_sentences']
-        df['Labels'] = binary_labels.values.tolist()
+        df['text'] = data['English_sentences']
+        df['label'] = binary_labels.values.tolist()
 
         return df

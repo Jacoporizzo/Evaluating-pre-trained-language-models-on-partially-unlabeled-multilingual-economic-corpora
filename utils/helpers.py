@@ -8,6 +8,7 @@ Created by: Jacopo Rizzo
 import pandas as pd
 import pickle
 import torch
+from sklearn.metrics import precision_recall_fscore_support, accuracy_score
 
 class Helper:
 
@@ -132,7 +133,20 @@ class Helper:
             multi_labels = []
             for pos in range(nr_lab):
                 multi_labels.append(int(labels[l][pos].split('LABEL_',1)[1]))
+                multi_labels.sort()
             pred_labs.append(multi_labels)
         
         return pred_labs
             
+    def evaluation_scores(self, true_labels, predicted_labels, eval_schema = 'micro'):
+
+        true = [item for sublist in true_labels for item in sublist]
+        pred = [item for sublist in predicted_labels for item in sublist]
+
+        acc = accuracy_score(true, pred)
+        precision, recall, f1, _ = precision_recall_fscore_support(true, pred, average = eval_schema)
+
+        return {'accuracy': acc,
+                'f1': f1,
+                'precision': precision,
+                'recall': recall}

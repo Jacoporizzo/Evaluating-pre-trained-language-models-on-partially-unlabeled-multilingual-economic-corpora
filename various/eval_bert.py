@@ -4,6 +4,7 @@ finetuned BERT model on a portion of the data.
 '''
 import pickle
 from utils.helpers import Helper
+from datasets import Dataset
 from transformers import (AutoModelForSequenceClassification,
                           AutoTokenizer,
                           pipeline)
@@ -22,7 +23,6 @@ model = AutoModelForSequenceClassification.from_pretrained(model_path)
 
 # Get test data
 test_df = df['test']
-test_df.set_format(type = 'torch')
 
 # Make predictions
 classifier = pipeline("text-classification", model = model, return_all_scores = True, tokenizer = tokenizer)
@@ -30,8 +30,19 @@ prediction = classifier(test_df['text'])
 
 # Evaluate results
 helper = Helper()
+test_df.set_format(type = 'torch')
+
 true_labels = helper.actual_labels(test_df['label'])
 predicted_labels_scores = helper.predicted_labels_score(true_labels, prediction)
 predicted_labels = helper.predicted_labels(predicted_labels_scores)
 
 # Comparison between true_labels and predicted_labels
+scores = helper.evaluation_scores(true_labels, predicted_labels)
+
+# # For saved df
+# true = pickle.load(open('data/true', 'rb'))
+# pred = pickle.load(open('data/predicted', 'rb'))
+
+# predicted = helper.predicted_labels(pred)
+
+# helper.evaluation_scores(true, predicted, eval_schema = 'macro')

@@ -78,11 +78,12 @@ class Helper:
         labels = []
 
         for tensor in data:
-            labels.append(torch.where(tensor == 1)[0])
+            labels.append([idx for idx in range(len(tensor)) if tensor[idx] == 1])
+            #labels.append(torch.where(tensor == 1)[0])
 
-        labels_nr = [item.tolist() for item in labels]
+        #labels_nr = [item.tolist() for item in labels]
 
-        return labels_nr
+        return labels
 
     def predicted_labels_score(self, actual, predicted):
         '''

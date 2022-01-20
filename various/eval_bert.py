@@ -4,33 +4,35 @@ finetuned BERT model on a portion of the data.
 '''
 import pickle
 from utils.helpers import Helper
-from datasets import Dataset
+import torch
 from transformers import (AutoModelForSequenceClassification,
                           AutoTokenizer,
                           pipeline)
 
 # Import data and model path
-data = pickle.load(open('data/df_finetune.pkl', 'rb'))
+data = pickle.load(open('data/data_split_v1.pkl', 'rb'))
 model_path = 'results/checkpoint-10680/'
-
-# Split dataset into train and test and conversion 
-# to right format. Dataset split: train 80%, test 20%
-df = Dataset.from_pandas(data).train_test_split(0.2, 0.8)
 
 # Import tokenizer and load model
 tokenizer = AutoTokenizer.from_pretrained('bert-base-cased')
 model = AutoModelForSequenceClassification.from_pretrained(model_path)
 
 # Get test data
-test_df = df['test']
+test_df = data['test']
+labels = torch.tensor(test_df['label'])
 
-# Make predictions
+# Make predictions with pipeline
 classifier = pipeline("text-classification", model = model, return_all_scores = True, tokenizer = tokenizer)
 prediction = classifier(test_df['text'])
 
+# Make predictions using the model (weird results)
+# outputs = model(test_df['input_ids'], labels = labels.float())
+# soft = torch.nn.Softmax(dim = 1)
+# preds = soft(outputs.logits)
+# labs_pred = torch.argmax(preds, dim = 1)
+
 # Evaluate results
 helper = Helper()
-test_df.set_format(type = 'torch')
 
 true_labels = helper.actual_labels(test_df['label'])
 predicted_labels_scores = helper.predicted_labels_score(true_labels, prediction)

@@ -25,7 +25,7 @@ labels = torch.tensor(test_df['label'])
 classifier = pipeline("text-classification", model = model, return_all_scores = True, tokenizer = tokenizer)
 prediction = classifier(test_df['text'])
 
-# Make predictions using the model (weird results)
+# # Make predictions using the model (weird results)
 # outputs = model(test_df['input_ids'], labels = labels.float())
 # soft = torch.nn.Softmax(dim = 1)
 # preds = soft(outputs.logits)

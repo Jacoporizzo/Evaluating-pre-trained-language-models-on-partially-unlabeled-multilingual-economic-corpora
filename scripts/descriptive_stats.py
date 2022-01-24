@@ -25,7 +25,7 @@ bc = bars.plot.bar()
 bars_df = bars.reset_index().rename(columns = {0: 'total'})
 (pn.ggplot(bars_df, pn.aes(x = 'index', y = 'total'))
      + pn.geom_col(color = 'blue', fill = 'blue')
-     + pn.labs(y = 'Total labels')
+     + pn.labs(y = 'Total labels', title = 'Absolute frequency of true labels in entire dataset')
      + pn.theme(axis_text_x = pn.element_text(angle = 90)))
 
 # Import trainer state data and extract relevant info
@@ -71,16 +71,39 @@ for i in test_labels:
     for key in dicts:
         if key in i:
             names.append(dicts[key])
-            
+
+# Plotting with matplotlib            
 keys, counts = np.unique(names, return_counts = True)
 
 plt.bar(keys, counts)
 plt.show()
 
+# Same with ggplot
 labs_df = pd.DataFrame.from_dict(dict([[x, names.count(x)] for x in set(names)]), orient = 'index').reset_index().rename(columns = {0: 'total'})
 
 (pn.ggplot(labs_df, pn.aes(x = 'index', y = 'total'))
      + pn.geom_col(color = 'blue', fill = 'blue')
      + pn.ylim(0, 1650)
-     + pn.labs(y = 'Total labels')
+     + pn.labs(y = 'Total labels', title = 'Absolute frequency of true labels in test dataset')
      + pn.theme(axis_text_x = pn.element_text(angle = 90)))
+
+# Absolute frequency of predicted labels on test dataset
+pred = pickle.load(open('data/prediction_test_df.pkl', 'rb'))
+pred_labels = helper.predicted_labels(pred)
+    
+# Save labels' names
+pred_names = []
+for i in pred_labels:
+    for key in dicts:
+        if key in i:
+            pred_names.append(dicts[key])
+
+# Same with ggplot
+pred_labs_df = pd.DataFrame.from_dict(dict([[x, pred_names.count(x)] for x in set(pred_names)]), orient = 'index').reset_index().rename(columns = {0: 'total'})
+
+(pn.ggplot(pred_labs_df, pn.aes(x = 'index', y = 'total'))
+     + pn.geom_col(color = 'blue', fill = 'blue')
+     + pn.ylim(0, 1650)
+     + pn.labs(y = 'Total labels', title = 'Absolute frequency of true labels in test dataset')
+     + pn.theme(axis_text_x = pn.element_text(angle = 90)))
+

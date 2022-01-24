@@ -4,6 +4,7 @@ Descriptive statistics for the orginal data.
 import json
 import pickle
 import pandas as pd
+import numpy as np
 import plotnine as pn
 from utils.imports import Import
 from utils.helpers import Helper
@@ -20,6 +21,13 @@ labels = gold_data.iloc[:,4:26]
 bars = labels.sum(axis = 0)
 bc = bars.plot.bar()
 
+# Same with ggplot
+bars_df = bars.reset_index().rename(columns = {0: 'total'})
+(pn.ggplot(bars_df, pn.aes(x = 'index', y = 'total'))
+     + pn.geom_col(color = 'blue', fill = 'blue')
+     + pn.labs(y = 'Total labels')
+     + pn.theme(axis_text_x = pn.element_text(angle = 90)))
+
 # Import trainer state data and extract relevant info
 eval_data = json.load(open('results/checkpoint-10680/trainer_state.json', 'r'))
 performance = eval_data['log_history']
@@ -33,8 +41,7 @@ df_metrics = pd.DataFrame(metrics)
 df_general = pd.DataFrame(general)
 
 # Plot
-(pn.ggplot(df_metrics)
-     + pn.aes(x = 'epoch', y = 'eval_accuracy')
+(pn.ggplot(df_metrics, pn.aes(x = 'epoch', y = 'eval_accuracy'))
      + pn.geom_line()
      + pn.xlim(1,12)
      + pn.geom_point()
@@ -57,19 +64,23 @@ helper = Helper()
 lab_names = helper.get_labels_names()
 
 dicts = dict(zip(range(0,22), lab_names))
-
-names = []
-for lab_nr in test_labels[0:5]:
-    if len(lab_nr) == 1:
-        names.append([dicts[lab_nr][0]])
-    else:
-        lst_labs = []
-        length = len(lab_nr)
-        for length in :
-            
- for i in range(len(actual)):
-    n_labels = len(actual[i])
-    sort_pred = sorted(predicted[i], key = lambda x: x['score'], reverse = True)
-    predicted_labels.append(sort_pred[0:n_labels])
     
-# Find way to save labels' names in pandas dataframe
+# Save labels' names
+names = []
+for i in test_labels:
+    for key in dicts:
+        if key in i:
+            names.append(dicts[key])
+            
+keys, counts = np.unique(names, return_counts = True)
+
+plt.bar(keys, counts)
+plt.show()
+
+labs_df = pd.DataFrame.from_dict(dict([[x, names.count(x)] for x in set(names)]), orient = 'index').reset_index().rename(columns = {0: 'total'})
+
+(pn.ggplot(labs_df, pn.aes(x = 'index', y = 'total'))
+     + pn.geom_col(color = 'blue', fill = 'blue')
+     + pn.ylim(0, 1650)
+     + pn.labs(y = 'Total labels')
+     + pn.theme(axis_text_x = pn.element_text(angle = 90)))

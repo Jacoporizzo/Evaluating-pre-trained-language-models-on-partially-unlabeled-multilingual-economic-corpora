@@ -8,7 +8,7 @@ Created by: Jacopo Rizzo
 import pandas as pd
 import pickle
 import torch
-from sklearn.metrics import precision_recall_fscore_support, accuracy_score
+from sklearn.metrics import precision_recall_fscore_support, accuracy_score, confusion_matrix
 
 class Helper:
 
@@ -139,7 +139,7 @@ class Helper:
         
         return pred_labs
             
-    def evaluation_scores(self, true_labels, predicted_labels, eval_schema = 'micro'):
+    def evaluation_scores(self, true_labels, predicted_labels, eval_schema = 'macro'):
         '''
         Compute the evaluation metrics for the test dataset.
 
@@ -159,7 +159,6 @@ class Helper:
             Dictionary with the the four evaluation metrics.
 
         '''
-
         true = [item for sublist in true_labels for item in sublist]
         pred = [item for sublist in predicted_labels for item in sublist]
 
@@ -170,3 +169,29 @@ class Helper:
                 'f1': f1,
                 'precision': precision,
                 'recall': recall}
+
+    def eval_confusion(self, true_labels, predictions):
+        '''
+        Create confusion matrix for predicted and actual labels.
+
+        Parameters
+        ----------
+        true_labels : list
+            List of true labels. Output of actual_labels().
+        predictions : list
+            List of predicted labels. Output of predicted_labels().
+
+        Returns
+        -------
+        cm : dataframe
+            Confusiion matrix for as dataframe.
+
+        '''
+        true = [item for sublist in true_labels for item in sublist]
+        prediction = [item for sublist in predictions for item in sublist]
+        
+        lab_names = Helper().get_labels_names()
+        dicts = dict(zip(range(0,22), lab_names))
+        
+        cm = pd.DataFrame(confusion_matrix(true, prediction)).rename(columns = dicts, index = dicts)
+        return cm

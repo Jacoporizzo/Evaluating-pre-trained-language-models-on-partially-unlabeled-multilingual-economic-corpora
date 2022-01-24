@@ -28,6 +28,7 @@ datasets==1.17.0
 debugpy @ file:///C:/ci/debugpy_1637091961445/work
 decorator==5.1.0
 defusedxml==0.7.1
+descartes==1.1.0
 diff-match-patch==20200713
 dill==0.3.4
 docutils==0.17.1
@@ -69,6 +70,7 @@ matplotlib==3.5.0
 matplotlib-inline==0.1.3
 mccabe==0.6.1
 mistune==0.8.4
+mizani==0.7.3
 multidict==5.2.0
 multiprocess==0.70.12.2
 mypy-extensions==0.4.3
@@ -82,15 +84,18 @@ numpy==1.21.2
 numpydoc==1.1.0
 openpyxl==3.0.9
 packaging==21.0
+palettable==3.3.0
 pandas==1.3.3
 pandocfilters==1.5.0
 paramiko==2.7.2
 parso==0.8.2
 pathspec==0.9.0
+patsy==0.5.2
 pexpect==4.8.0
 pickleshare @ file:///tmp/build/80754af9/pickleshare_1606932040724/work
 Pillow==8.3.2
 platformdirs==2.4.0
+plotnine==0.8.0
 pluggy==1.0.0
 poyo==0.5.0
 prometheus-client==0.11.0
@@ -152,6 +157,7 @@ sphinxcontrib-qthelp==1.0.3
 sphinxcontrib-serializinghtml==1.1.5
 spyder==5.1.5
 spyder-kernels==2.1.3
+statsmodels==0.13.1
 terminado==0.12.1
 testpath==0.5.0
 text-unidecode==1.3

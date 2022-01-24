@@ -140,6 +140,25 @@ class Helper:
         return pred_labs
             
     def evaluation_scores(self, true_labels, predicted_labels, eval_schema = 'micro'):
+        '''
+        Compute the evaluation metrics for the test dataset.
+
+        Parameters
+        ----------
+        true_labels : list
+            List of lists with the true labels (output of actual_labels).
+        predicted_labels : list
+            List of lists with the predicted labels (output of predicted_labels).
+        eval_schema : string, optional
+            Schema to use for evaluation see doc of sklearn-metrics for a 
+            complete list of available schemes. The default is 'micro'.
+
+        Returns
+        -------
+        dict
+            Dictionary with the the four evaluation metrics.
+
+        '''
 
         true = [item for sublist in true_labels for item in sublist]
         pred = [item for sublist in predicted_labels for item in sublist]

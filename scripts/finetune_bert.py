@@ -9,6 +9,7 @@ import pickle
 import numpy as np
 from datasets import Dataset
 from sklearn.metrics import precision_recall_fscore_support, accuracy_score
+from sklearn.model_selection import train_test_split
 from transformers import (AutoModelForSequenceClassification,
                           AutoTokenizer,
                           TrainingArguments,
@@ -17,9 +18,22 @@ from transformers import (AutoModelForSequenceClassification,
 # Import data
 data = pickle.load(open('data/df_finetune.pkl', 'rb'))
 
-# Split dataset into train and test and conversion 
-# to right format. Dataset split: train 80%, test 20%
-df = Dataset.from_pandas(data).train_test_split(0.2, 0.8)
+# Preprocess data and split into train/test/dev (80/10/10) set using
+# stratified sampling based on one-label classes, i.e.
+# for mulitlabeled datapoints only the first class is selected
+data['lab'] = [np.nonzero(idx)[0][0] for idx in data['label']]
+
+train, test = train_test_split(data, test_size = 0.2, stratify = data['lab'])
+dev, test = train_test_split(test, test_size = 0.5, stratify = test['lab'])
+
+data.drop('lab', axis = 1, inplace = True)
+train.drop('lab', axis = 1, inplace = True)
+test.drop('lab', axis = 1, inplace = True)
+dev.drop('lab', axis = 1, inplace = True)
+
+train = Dataset.from_pandas(train)
+test = Dataset.from_pandas(test)
+dev = Dataset.from_pandas(dev)
 
 # Model's name and paramaters and metrics
 model_name = 'bert-base-cased'
@@ -44,18 +58,23 @@ tokenizer = AutoTokenizer.from_pretrained(model_name)
 def tokenize_function(input):
     return tokenizer(input['text'], padding = 'max_length', truncation = True)
 
-tokenized_df = df.map(tokenize_function, batched = True)
+train_df = train.map(tokenize_function, batched = True)
+test_df = test.map(tokenize_function, batched = True)
+dev_df = dev.map(tokenize_function, batched = True)
 
-# Save dataset
-#with open('data/data_split_v1.pkl', 'wb') as fp:
-#    pickle.dump(tokenized_df, fp)
+# Save datasets
+#with open('data/train_data.pkl', 'wb') as fp:
+#    pickle.dump(train_df, fp)
+#
+#with open('data/test_data.pkl', 'wb') as fp:
+#    pickle.dump(test_df, fp)
+#
+#with open('data/dev_data.pkl', 'wb') as fp:
+#    pickle.dump(dev_df, fp)
 
-# Prepare data with DataLoader
-train_df = tokenized_df['train']
-test_df = tokenized_df['test']
-
+# Set data to right format
 train_df.set_format(type = 'torch', columns = ['input_ids', 'token_type_ids', 'attention_mask'], output_all_columns = True)
-test_df.set_format(type = 'torch', columns = ['input_ids', 'token_type_ids', 'attention_mask'], output_all_columns = True)
+dev_df.set_format(type = 'torch', columns = ['input_ids', 'token_type_ids', 'attention_mask'], output_all_columns = True)
 
 # Define accuracy metric
 def compute_metric(preds):
@@ -72,7 +91,7 @@ trainer = Trainer(
     model = model,
     args = training_args,
     train_dataset = train_df,
-    eval_dataset = test_df,
+    eval_dataset = dev_df,
     compute_metrics = compute_metric
 )
 

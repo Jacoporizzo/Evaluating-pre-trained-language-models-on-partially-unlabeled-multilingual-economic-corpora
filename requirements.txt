@@ -170,6 +170,7 @@ toml==0.10.2
 tomli==1.2.1
 torch==1.9.1
 torchaudio==0.9.1
+torchsummary==1.5.1
 torchvision==0.10.1
 tornado @ file:///C:/ci/tornado_1606924294691/work
 tqdm==4.62.3

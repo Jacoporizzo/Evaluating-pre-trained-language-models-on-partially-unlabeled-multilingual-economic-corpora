@@ -79,7 +79,7 @@ dev_df.set_format(type = 'torch', columns = ['input_ids', 'token_type_ids', 'att
 # Define accuracy metric
 def compute_metric(preds):
     logits, labels = preds
-    predictions = np.argmax(logits, axis=-1)
+    predictions = np.argmax(logits, axis = -1)
     ref_labels = np.argmax(labels, axis = -1)
     acc = accuracy_score(ref_labels, predictions)
     precision, recall, f1, _ = precision_recall_fscore_support(ref_labels, predictions, average = 'micro')

@@ -9,9 +9,10 @@ from transformers import (AutoModelForSequenceClassification,
                           AutoTokenizer,
                           pipeline)
 
+# VERSION 1
 # Import data and model path
-data = pickle.load(open('data/data_split_v1.pkl', 'rb'))
-model_path = 'results/checkpoint-10680/'
+data = pickle.load(open('data/data_v1/data_split_v1.pkl', 'rb'))
+model_path = 'results/checkpoint-10680_v1/'
 
 # Import tokenizer and load model
 tokenizer = AutoTokenizer.from_pretrained('bert-base-cased')
@@ -48,3 +49,36 @@ scores = helper.evaluation_scores(true_labels, predicted_labels)
 # predicted = helper.predicted_labels(pred)
 
 # helper.evaluation_scores(true, predicted, eval_schema = 'macro')
+
+#%%
+# VERSION 2
+# Import test data and model path
+test_data = pickle.load(open('data/data_v2/test_data_v2.pkl', 'rb'))
+model_path = 'results/checkpoint-10680_v2/'
+
+# Load model
+tokenizer = AutoTokenizer.from_pretrained('bert-base-cased')
+model = AutoModelForSequenceClassification.from_pretrained(model_path)
+
+# Get test data
+labels = torch.tensor(test_data['label'])
+
+# Make predictions with pipeline
+classifier = pipeline("text-classification", model = model, return_all_scores = True, tokenizer = tokenizer)
+prediction = classifier(test_data['text'])
+
+# Evaluate results
+helper = Helper()
+
+true_labels = helper.actual_labels(test_data['label'])
+predicted_labels_scores = helper.predicted_labels_score(true_labels, prediction)
+predicted_labels = helper.predicted_labels(predicted_labels_scores)
+
+# Comparison between true_labels and predicted_labels
+scores = helper.evaluation_scores(true_labels, predicted_labels)
+
+# Scores with eval_schema = 'macro'
+# {'accuracy': 0.7594594594594595, 
+# 'f1': 0.7222663561122117, 
+# 'precision': 0.7353722958307369, 
+# 'recall': 0.7133513827218044}

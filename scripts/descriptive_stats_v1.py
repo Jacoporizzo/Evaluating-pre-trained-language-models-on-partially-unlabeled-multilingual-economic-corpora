@@ -1,5 +1,6 @@
 '''
-Descriptive statistics for the orginal data.
+Descriptive statistics for the orginal data
+and for the results of bert v1.
 '''
 import json
 import pickle
@@ -29,7 +30,7 @@ bars_df = bars.reset_index().rename(columns = {0: 'total'})
      + pn.theme(axis_text_x = pn.element_text(angle = 90)))
 
 # Import trainer state data and extract relevant info
-eval_data = json.load(open('results/checkpoint-10680/trainer_state.json', 'r'))
+eval_data = json.load(open('results/checkpoint-10680_v1/trainer_state.json', 'r'))
 performance = eval_data['log_history']
 
 # Split into evaluation metrics and general info
@@ -54,7 +55,7 @@ plt.plot('epoch', 'eval_accuracy', data = df_metrics)
 plt.show()
 
 # Barplot for test_data's labels
-training_data = pickle.load(open('data/data_split_v1.pkl', 'rb'))
+training_data = pickle.load(open('data/data_v1/data_split_v1.pkl', 'rb'))
 test_data = training_data['test']
 test_labels = []
 for lab in test_data['label']:
@@ -88,7 +89,7 @@ labs_df = pd.DataFrame.from_dict(dict([[x, names.count(x)] for x in set(names)])
      + pn.theme(axis_text_x = pn.element_text(angle = 90)))
 
 # Absolute frequency of predicted labels on test dataset
-pred = pickle.load(open('data/prediction_test_df.pkl', 'rb'))
+pred = pickle.load(open('data/data_v1/prediction_test_v1.pkl', 'rb'))
 pred_labels = helper.predicted_labels(pred)
     
 # Save labels' names

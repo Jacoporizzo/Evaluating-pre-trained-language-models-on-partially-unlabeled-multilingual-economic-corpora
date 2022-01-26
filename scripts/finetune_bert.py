@@ -82,7 +82,7 @@ def compute_metric(preds):
     predictions = np.argmax(logits, axis = -1)
     ref_labels = np.argmax(labels, axis = -1)
     acc = accuracy_score(ref_labels, predictions)
-    precision, recall, f1, _ = precision_recall_fscore_support(ref_labels, predictions, average = 'micro')
+    precision, recall, f1, _ = precision_recall_fscore_support(ref_labels, predictions, average = 'macro')
     return {'accuracy': acc, 'f1': f1, 'precision': precision, 'recall': recall}
 
 # Initialize model and start trainig (i.e. finetuning)

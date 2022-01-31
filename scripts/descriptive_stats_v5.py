@@ -1,6 +1,6 @@
 '''
 Descriptive statistics for the orginal data  
-and for the results of bert v2.
+and for the results of bert v5.
 '''
 import json
 import pickle
@@ -30,7 +30,7 @@ bars_df = bars.reset_index().rename(columns = {0: 'total'})
      + pn.theme(axis_text_x = pn.element_text(angle = 90)))
 
 # Import trainer state data and extract relevant info
-eval_data = json.load(open('results/checkpoint-10680_v2/trainer_state.json', 'r'))
+eval_data = json.load(open('results/checkpoint-10680_v5/trainer_state.json', 'r'))
 performance = eval_data['log_history']
 
 # Split into evaluation metrics and general info
@@ -45,7 +45,7 @@ df_general = pd.DataFrame(general)
 (pn.ggplot(df_metrics, pn.aes(x = 'epoch', y = 'eval_accuracy'))
      + pn.geom_line()
      + pn.xlim(1,12)
-     + pn.ylim(0.675, 0.725)
+     + pn.ylim(0.7, 0.75)
      + pn.geom_point()
      + pn.scale_x_continuous(name="Epoch", limits=[1, 12], 
                              breaks = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
@@ -56,7 +56,7 @@ df_general = pd.DataFrame(general)
 # plt.show()
 
 # Barplot for test_data's labels
-test_data = pickle.load(open('data/data_v2/test_data_v2.pkl', 'rb'))
+test_data = pickle.load(open('data/data_v5/test_data_v5.pkl', 'rb'))
 test_labels = []
 for lab in test_data['label']:
     test_labels.append([idx for idx in range(len(lab)) if lab[idx] == 1])
@@ -87,7 +87,7 @@ labs_df = pd.DataFrame.from_dict(dict([[x, test_names.count(x)] for x in set(tes
      + pn.theme(axis_text_x = pn.element_text(angle = 90)))
 
 # Absolute frequency of predicted labels on test dataset
-test_pred = pickle.load(open('data/data_v2/prediction_test_v2.pkl', 'rb'))
+test_pred = pickle.load(open('data/data_v5/prediction_test_v5.pkl', 'rb'))
 preds = helper.predicted_labels_scores(test_labels, test_pred)
 pred_labels = helper.predicted_labels(preds)
     

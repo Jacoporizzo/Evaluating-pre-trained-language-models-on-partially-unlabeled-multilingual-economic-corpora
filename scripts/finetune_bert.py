@@ -39,7 +39,7 @@ dev = Dataset.from_pandas(dev)
 model_name = 'bert-base-cased'
 training_args = TrainingArguments(
     output_dir = '../results',
-    evaluation_strategy = 'steps',
+    evaluation_strategy = 'epoch',
     learning_rate = 4e-5,
     per_device_train_batch_size = 16,
     per_device_eval_batch_size = 16,
@@ -86,7 +86,9 @@ def compute_metric(preds):
     return {'accuracy': acc, 'f1': f1, 'precision': precision, 'recall': recall}
 
 # Initialize model and start trainig (i.e. finetuning)
-model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels = 22)
+model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels = 22, problem_type = 'multi_label_classification')
+# Modify dropout prob within the Encoder (default to 0.1, see BertConfig)
+# model = AutoModelForSequenceClassification-from_pretrained(model_name, num_labels = 22, hidden_dropout_prob = 0.35, problem_type = 'multi_label_classification')
 trainer = Trainer(
     model = model,
     args = training_args,

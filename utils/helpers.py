@@ -8,7 +8,9 @@ Created by: Jacopo Rizzo
 import pandas as pd
 import pickle
 import torch
-from sklearn.metrics import precision_recall_fscore_support, accuracy_score, confusion_matrix
+from sklearn.metrics import (precision_recall_fscore_support, 
+                             accuracy_score, 
+                             confusion_matrix)
 
 class Helper:
 
@@ -85,7 +87,7 @@ class Helper:
 
         return labels
 
-    def predicted_labels_score(self, actual, predicted):
+    def predicted_labels_scores(self, actual, predicted):
         '''
         Get the predicted labels by the model and their corrseponding
         prediction score.
@@ -139,9 +141,9 @@ class Helper:
         
         return pred_labs
             
-    def evaluation_scores(self, true_labels, predicted_labels, eval_schema = 'macro'):
+    def evaluation_scores(self, true_labels, predicted_labels, level = 'global'):
         '''
-        Compute the evaluation metrics for the test dataset.
+        Compute the evaluation metrics (accuracy only globally) for the test dataset.
 
         Parameters
         ----------
@@ -149,26 +151,46 @@ class Helper:
             List of lists with the true labels (output of actual_labels).
         predicted_labels : list
             List of lists with the predicted labels (output of predicted_labels).
-        eval_schema : string, optional
+        eval_schema : str, optional
             Schema to use for evaluation see doc of sklearn-metrics for a 
             complete list of available schemes. The default is 'micro'.
+        level : str, optional
+            Whether computing the metrics globally ('global') over the entire datset
+            or on a class basis ('local'). If global, then the output for precision
+            recall and f1 is the mean of the outputs for each single class.
+            The default is 'global'.
 
         Returns
         -------
-        dict
-            Dictionary with the the four evaluation metrics.
+        metrics
+            Dictionary (for global level) or dataframe (for local level) 
+            with the the four evaluation metrics.
 
         '''
+        VALID_LEVELS = {'global', 'local'}
+        if level not in VALID_LEVELS:
+            raise ValueError("Level must be one of %r." % VALID_LEVELS)
+
         true = [item for sublist in true_labels for item in sublist]
         pred = [item for sublist in predicted_labels for item in sublist]
 
         acc = accuracy_score(true, pred)
-        precision, recall, f1, _ = precision_recall_fscore_support(true, pred, average = eval_schema)
 
-        return {'accuracy': acc,
-                'f1': f1,
-                'precision': precision,
-                'recall': recall}
+        if level == 'global':
+            precision, recall, f1, _ = precision_recall_fscore_support(true, pred, average = 'macro')
+            metrics = {'accuracy': acc,
+                        'f1': f1,
+                        'precision': precision,
+                        'recall': recall}
+        else:
+            lab_names = self.get_labels_names()
+            precision, recall, f1, _ = precision_recall_fscore_support(true, pred)
+            metrics = pd.DataFrame({'labels': lab_names,
+                                    'precision': precision,
+                                    'recall': recall,
+                                    'f1-score': f1})
+
+        return metrics
 
     def eval_confusion(self, true_labels, predictions):
         '''

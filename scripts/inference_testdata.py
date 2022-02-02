@@ -1,6 +1,5 @@
 '''
-Evaluation of the first version of the 
-finetuned BERT model on a portion of the data.
+Inference on the test data using the fientuned model.
 '''
 import pickle
 from utils.helpers import Helper
@@ -85,7 +84,7 @@ scores = helper.evaluation_scores(true_labels, predicted_labels)
 #%% 
 # Evaluation for last version
 import pickle
-from helpers import Helper
+from utils.helpers import Helper
 import torch
 from transformers import (AutoModelForSequenceClassification,
                           AutoTokenizer,

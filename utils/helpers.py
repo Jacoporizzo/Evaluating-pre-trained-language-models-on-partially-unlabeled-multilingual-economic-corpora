@@ -8,6 +8,7 @@ Created by: Jacopo Rizzo
 import pandas as pd
 import pickle
 import torch
+import numpy as np
 from sklearn.metrics import (precision_recall_fscore_support, 
                              accuracy_score, 
                              confusion_matrix)
@@ -52,13 +53,56 @@ class Helper:
             Dataframe to use for fine-tuning, containing list of labels and text.
 
         '''
-
         # Columns subsetting if using provided dataframe
         binary_labels = data.iloc[:,6:28].astype(int)
 
         df = pd.DataFrame()
         df['text'] = data['English_sentences']
         df['label'] = binary_labels.values.tolist()
+
+        return df
+
+    def fulltext_labels(self, data, goldstandards):
+        '''
+        Create dataframe containing the entire text of a documents with its labels.
+
+        Parameters
+        ----------
+        data : dataframe
+            Dataframe containing the entire documents' texts. Output from
+            Import.findcounterpart()
+        goldstandards : datframe
+            Dataframe containing the Englich goldstandards. Already saved and
+            can be directly imported. 
+
+        Returns
+        -------
+        df : dataframe
+            Dataframe with aggregated labels for each document.
+
+        '''
+        hash_list = list(goldstandards['English_hash'].unique())
+
+        # Create dataframe for texts' labels
+        df = pd.DataFrame(columns = {'hash', 'text', 'labels'})
+
+        for i in range(len(hash_list)):
+            labels = goldstandards[goldstandards['English_hash'] == hash_list[i]].iloc[:, 6:28].astype(int)
+            binary_labels = labels.values.tolist()
+            aggregate = np.array(list(map(any, zip(*binary_labels))), dtype = int)
+            
+            # Get entire text for given document
+            idx = data.index[data['hash_x'] == hash_list[i]][0]
+            
+            text = data['bodyTextRaw_x'][idx]
+            title = data['titleText_x'][idx]
+
+            if title not in text:
+                full_text = title + '. ' + text
+            else:
+                full_text = text
+
+            df.loc[i] = [hash_list[i], full_text, list(aggregate)]
 
         return df
 
@@ -141,7 +185,7 @@ class Helper:
         
         return pred_labs
             
-    def evaluation_scores(self, true_labels, predicted_labels, level = 'global'):
+    def evaluation_scores(self, true_labels, predicted_labels, level = 'global', average = 'macro'):
         '''
         Compute the evaluation metrics (accuracy only globally) for the test dataset.
 
@@ -151,14 +195,14 @@ class Helper:
             List of lists with the true labels (output of actual_labels).
         predicted_labels : list
             List of lists with the predicted labels (output of predicted_labels).
-        eval_schema : str, optional
-            Schema to use for evaluation see doc of sklearn-metrics for a 
-            complete list of available schemes. The default is 'micro'.
         level : str, optional
             Whether computing the metrics globally ('global') over the entire datset
             or on a class basis ('local'). If global, then the output for precision
             recall and f1 is the mean of the outputs for each single class.
             The default is 'global'.
+        average : str, optional
+            Art of average for global scores for the entire dataset. Only valid
+            for 'global'. For 'local' automatically set to None. The default is 'macro'.
 
         Returns
         -------
@@ -167,9 +211,13 @@ class Helper:
             with the the four evaluation metrics.
 
         '''
+        VALID_EVAL = {'macro', 'micro', 'weighted', None, 'samples'}
         VALID_LEVELS = {'global', 'local'}
         if level not in VALID_LEVELS:
             raise ValueError("Level must be one of %r." % VALID_LEVELS)
+
+        if average not in VALID_EVAL:
+            raise ValueError("Average must be one of %r." % VALID_EVAL)
 
         true = [item for sublist in true_labels for item in sublist]
         pred = [item for sublist in predicted_labels for item in sublist]
@@ -177,7 +225,7 @@ class Helper:
         acc = accuracy_score(true, pred)
 
         if level == 'global':
-            precision, recall, f1, _ = precision_recall_fscore_support(true, pred, average = 'macro')
+            precision, recall, f1, _ = precision_recall_fscore_support(true, pred, average = average)
             metrics = {'accuracy': acc,
                         'f1': f1,
                         'precision': precision,
@@ -188,7 +236,7 @@ class Helper:
             metrics = pd.DataFrame({'labels': lab_names,
                                     'precision': precision,
                                     'recall': recall,
-                                    'f1-score': f1})
+                                    'f1': f1})
 
         return metrics
 

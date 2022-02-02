@@ -35,6 +35,10 @@ english_labelled.to_pickle('data/english_goldstandards.pkl')
 print(datetime.now() - start)
 
 # Get df to use for finetuning
-helps = Helper()
-df_finetune = helps.get_inputs(english_labelled)
+helper = Helper()
+df_finetune = helper.get_inputs(english_labelled)
 df_finetune.to_pickle('data/df_finetune.pkl')
+
+# Create df with entire text of labelled documents
+df_fulltext = helper.fulltext_labels(data, english_labelled)
+df_fulltext.to_pickle('data/labelled_doc.pkl')

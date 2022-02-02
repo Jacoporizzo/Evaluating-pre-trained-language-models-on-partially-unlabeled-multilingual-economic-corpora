@@ -5,11 +5,9 @@ and for the results of bert v5.
 import json
 import pickle
 import pandas as pd
-import numpy as np
 import plotnine as pn
 from utils.imports import Import
 from utils.helpers import Helper
-import matplotlib.pyplot as plt
 
 # Import data
 imports = Import()
@@ -45,7 +43,7 @@ df_general = pd.DataFrame(general)
 (pn.ggplot(df_metrics, pn.aes(x = 'epoch', y = 'eval_accuracy'))
      + pn.geom_line()
      + pn.xlim(1,12)
-     + pn.ylim(0.7, 0.75)
+     + pn.ylim(0.68, 0.76)
      + pn.geom_point()
      + pn.scale_x_continuous(name="Epoch", limits=[1, 12], 
                              breaks = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
@@ -106,3 +104,6 @@ pred_labs_df = pd.DataFrame.from_dict(dict([[x, pred_names.count(x)] for x in se
      + pn.labs(y = 'Total labels', title = 'Absolute frequency of predicted labels in test dataset')
      + pn.theme(axis_text_x = pn.element_text(angle = 90)))
 
+# Compute evaluation metrics for the test data 
+local_metrics = helper.evaluation_scores(test_labels, pred_labels, 'local')
+global_metrics = helper.evaluation_scores(test_labels, pred_labels)

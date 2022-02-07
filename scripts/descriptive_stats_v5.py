@@ -13,7 +13,7 @@ from utils.helpers import Helper
 imports = Import()
 gold_data = imports.importgold()
 
-# Bar chart of the labels (absolute frequency).
+# Bar chart of the labels (absolute frequency) for the German goldstandards.
 # The amount and distribution of the labels is 
 # the same for the goldstandards and the SBERT's output.
 labels = gold_data.iloc[:,4:26]
@@ -24,7 +24,18 @@ bc = bars.plot.bar()
 bars_df = bars.reset_index().rename(columns = {0: 'total'})
 (pn.ggplot(bars_df, pn.aes(x = 'index', y = 'total'))
      + pn.geom_col(color = 'blue', fill = 'blue')
-     + pn.labs(y = 'Total labels', title = 'Absolute frequency of true labels in entire dataset')
+     + pn.labs(y = 'Total labels', title = 'Absolute frequency of true labels in German dataset')
+     + pn.theme(axis_text_x = pn.element_text(angle = 90)))
+
+# Bar chart for labels of english goldstandards
+english_goldstandards = pickle.load(open('data/english_goldstandards.pkl', 'rb'))
+english_labels = english_goldstandards.iloc[:,6:28]
+english_bars = english_labels.sum(axis = 0)
+
+english_bars_df = english_bars.reset_index().rename(columns = {0: 'total'})
+(pn.ggplot(english_bars_df, pn.aes(x = 'index', y = 'total'))
+     + pn.geom_col(color = 'blue', fill = 'blue')
+     + pn.labs(y = 'Total labels', title = 'Absolute frequency of true labels in English dataset')
      + pn.theme(axis_text_x = pn.element_text(angle = 90)))
 
 # Import trainer state data and extract relevant info

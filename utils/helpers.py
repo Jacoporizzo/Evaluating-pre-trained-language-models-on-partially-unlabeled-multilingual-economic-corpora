@@ -62,6 +62,30 @@ class Helper:
 
         return df
 
+    def get_inputs_8k(self, data):
+        '''
+        Set up the forms 8k dataframe to use for fine-tuning.
+
+        Parameters
+        ----------
+        data : Dataframe
+            Labelled dataframe (i.e. linked_8k.pkl) dataframe.
+
+        Returns
+        -------
+        df : Dataframe
+            Dataframe to use for fine-tuning, containing list of labels and text.
+
+        '''
+        # Columns subsetting if using provided dataframe
+        binary_labels = data.iloc[:,6:28].astype(int)
+
+        df = pd.DataFrame()
+        df['text'] = data['ItemText']
+        df['label'] = binary_labels.values.tolist()
+
+        return df
+
     def fulltext_labels(self, data, goldstandards):
         '''
         Create dataframe containing the entire text of a documents with its labels.

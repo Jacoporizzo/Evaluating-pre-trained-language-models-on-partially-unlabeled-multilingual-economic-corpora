@@ -254,7 +254,7 @@ class Helper:
         Returns
         -------
         cm : dataframe
-            Confusiion matrix for as dataframe.
+            Confusion matrix for all labels as dataframe.
 
         '''
         true = [item for sublist in true_labels for item in sublist]
@@ -265,3 +265,60 @@ class Helper:
         
         cm = pd.DataFrame(confusion_matrix(true, prediction)).rename(columns = dicts, index = dicts)
         return cm
+
+    def link_classes(self, forms8k):
+
+        labels_names = self.get_labels_names()
+
+        # Items to be removed
+        items_to_remove = [np.float64(1.02),
+                           np.float64(1.04),
+                           np.float64(2.04),
+                           np.float64(2.06),
+                           np.float64(3.02),
+                           np.float64(3.03),
+                           np.float64(4.01),
+                           np.float64(4.02),
+                           np.float64(5.04),
+                           np.float64(5.05),
+                           np.float64(5.06),
+                           np.float64(5.07),
+                           np.float64(6.01),
+                           np.float64(6.02),
+                           np.float64(6.03),
+                           np.float64(6.04),
+                           np.float64(6.05),
+                           np.float64(9.01)]
+
+        # Remove items form data
+        data = forms8k[~forms8k['ItemNumber'].isin(items_to_remove)].reset_index(drop = True)
+
+        # Craete dictionary for linking 
+        link_classes = {np.float64(1.01): ['SEO', 'Debt'],
+                        np.float64(1.03): ['Insolvenzplan', 'Insolvenzantrag'],
+                        np.float64(2.01): ['Beteiligung', 'Real_Invest'],
+                        np.float64(2.02): ['Guidance', 'Gewinnwarnung'],
+                        np.float64(2.03): ['Debt'],
+                        np.float64(2.05): ['Restructuring'],
+                        np.float64(3.01): ['Delisting'],
+                        np.float64(5.01): ['Management'],
+                        np.float64(5.02): ['Management'],
+                        np.float64(5.03): ['Split'],
+                        np.float64(5.08): ['Management'],
+                        np.float64(7.01): ['Dividende'],
+                        np.float64(8.01): ['Rückkauf']}
+
+        data['label_string'] = data['ItemNumber'].map(link_classes)
+
+        for var in labels_names:
+            class_var = []
+            for item in data['label_string']:
+                if var in item:
+                    class_var.append(True)
+                else:
+                    class_var.append(False)
+            data[var] = class_var
+
+        data.drop('label_string', axis = 1, inplace = True)
+
+        return data

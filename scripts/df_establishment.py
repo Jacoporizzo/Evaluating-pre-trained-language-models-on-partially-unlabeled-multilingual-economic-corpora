@@ -42,3 +42,8 @@ df_finetune.to_pickle('data/df_finetune.pkl')
 # Create df with entire text of labelled documents
 df_fulltext = helper.fulltext_labels(data, english_labelled)
 df_fulltext.to_pickle('data/labelled_doc.pkl')
+
+# Create df with 8k items linked to german classes
+forms8k = imp.import8k()
+linked_data = helper.link_classes(forms8k)
+linked_data.to_pickle('data/linked_8k.pkl')

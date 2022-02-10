@@ -86,47 +86,42 @@ class Helper:
 
         return df
 
-    def fulltext_labels(self, data, goldstandards):
+    def fulltext_labels(self, data):
         '''
-        Create dataframe containing the entire text of a documents with its labels.
+        Creates df containing the labelled inputs with all the
+        classes of the document to which they belong (i.e. document-level approach).
 
         Parameters
         ----------
         data : dataframe
-            Dataframe containing the entire documents' texts. Output from
-            Import.findcounterpart()
-        goldstandards : datframe
             Dataframe containing the Englich goldstandards. Already saved and
             can be directly imported. 
 
         Returns
         -------
         df : dataframe
-            Dataframe with aggregated labels for each document.
+            Dataframe with aggregated labels for each document 
+            (i.e. each instance of the document).
 
         '''
-        hash_list = list(goldstandards['English_hash'].unique())
+        # Create binary labels for each instance
+        binary_labels = data.iloc[:,6:28].astype(int)
+        data['binary_label'] = binary_labels.values.tolist()
 
-        # Create dataframe for texts' labels
-        df = pd.DataFrame(columns = {'hash', 'text', 'labels'})
+        # Aggregate labels and return df
+        sents, hashs, labs =  [], [], []
 
-        for i in range(len(hash_list)):
-            labels = goldstandards[goldstandards['English_hash'] == hash_list[i]].iloc[:, 6:28].astype(int)
-            binary_labels = labels.values.tolist()
-            aggregate = np.array(list(map(any, zip(*binary_labels))), dtype = int)
-            
-            # Get entire text for given document
-            idx = data.index[data['hash_x'] == hash_list[i]][0]
-            
-            text = data['bodyTextRaw_x'][idx]
-            title = data['titleText_x'][idx]
+        unique_hash = data['English_hash'].unique()
+        for uhash in unique_hash:
+            subset = data[data['English_hash'] == uhash]
+            aggregate = np.array(list(map(any, zip(*subset['binary_label']))), dtype = int)
+            sents.extend(subset['English_sentences'])
+            hashs.extend(subset['English_hash'])
+            labs.extend([aggregate] * len(subset))
 
-            if title not in text:
-                full_text = title + '. ' + text
-            else:
-                full_text = text
-
-            df.loc[i] = [hash_list[i], full_text, list(aggregate)]
+        df = pd.DataFrame({'text': sents,
+                           'hash': hashs,
+                           'label': labs})
 
         return df
 

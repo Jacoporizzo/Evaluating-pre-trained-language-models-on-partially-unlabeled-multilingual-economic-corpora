@@ -87,45 +87,6 @@ class Helper:
 
         return df
 
-    def fulltext_labels(self, data):
-        '''
-        Creates df containing the labelled inputs with all the
-        classes of the document to which they belong (i.e. document-level approach).
-
-        Parameters
-        ----------
-        data : dataframe
-            Dataframe containing the Englich goldstandards. Already saved and
-            can be directly imported. 
-
-        Returns
-        -------
-        df : dataframe
-            Dataframe with aggregated labels for each document 
-            (i.e. each instance of the document).
-
-        '''
-        # Create binary labels for each instance
-        binary_labels = data.iloc[:,6:28].astype(int)
-        data['binary_label'] = binary_labels.values.tolist()
-
-        # Aggregate labels and return df
-        sents, hashs, labs =  [], [], []
-
-        unique_hash = data['English_hash'].unique()
-        for uhash in unique_hash:
-            subset = data[data['English_hash'] == uhash]
-            aggregate = np.array(list(map(any, zip(*subset['binary_label']))), dtype = int)
-            sents.extend(subset['English_sentences'])
-            hashs.extend(subset['English_hash'])
-            labs.extend([aggregate] * len(subset))
-
-        df = pd.DataFrame({'text': sents,
-                           'hash': hashs,
-                           'label': labs})
-
-        return df
-
     def actual_labels(self, data):
         '''
         Get the true labels from the data.

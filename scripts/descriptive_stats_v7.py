@@ -8,10 +8,9 @@ import pickle
 import pandas as pd
 import plotnine as pn
 from utils.helpers import Helper
-from utils.doclevel import DocLevel
 
 # Import trainer state data and extract relevant info
-eval_data = json.load(open('results/checkpoint-10680_v6/trainer_state.json', 'r'))
+eval_data = json.load(open('results/bert_v7/checkpoint-7120/trainer_state.json', 'r'))
 performance = eval_data['log_history']
 
 # Split into evaluation metrics and general info
@@ -25,11 +24,11 @@ df_general = pd.DataFrame(general)
 # Plot
 (pn.ggplot(df_metrics, pn.aes(x = 'epoch', y = 'eval_accuracy'))
      + pn.geom_line()
-     + pn.xlim(1,12)
+     + pn.xlim(1,8)
      + pn.ylim(0.68, 0.76)
      + pn.geom_point()
-     + pn.scale_x_continuous(name="Epoch", limits=[1, 12], 
-                             breaks = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+     + pn.scale_x_continuous(name="Epoch", limits=[1, 8], 
+                             breaks = [1, 2, 3, 4, 5, 6, 7, 8])
      + pn.labs(y = 'Accuracy', title = 'Accuracy on evaluation dataset per epoch'))
 
 # Validation and training loss
@@ -41,15 +40,15 @@ df_comparison = pd.DataFrame({'epoch': df_metrics['epoch'],
 (pn.ggplot(df_comparison, pn.aes(x = 'epoch'))
      + pn.geom_line(pn.aes(y = 'eval_loss', color = '"blue"'))
      + pn.geom_line(pn.aes(y = 'train_loss', color = '"red"'))
-     + pn.scale_x_continuous(name = 'Epoch', limits = [1,12],
-                           breaks = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+     + pn.scale_x_continuous(name = 'Epoch', limits = [1, 8],
+                           breaks = [1, 2, 3, 4, 5, 6, 7, 8])
      + pn.labs(y = 'Loss', title = 'Train and validation loss per epoch')
      + pn.scale_colour_identity(guide = 'legend', name = 'Set',
                                 breaks = ['red', 'blue'],
                                 labels = ['Train', 'Validation']))
 
 # Absolute and relative freq for test datas' true labels
-test_data = pickle.load(open('data/data_v6/test_data.pkl', 'rb'))
+test_data = pickle.load(open('data/data_v7/test_data.pkl', 'rb'))
 test_labels = []
 for lab in test_data['label']:
     test_labels.append([idx for idx in range(len(lab)) if lab[idx] == 1])
@@ -78,7 +77,7 @@ labs_df['proportion'] = labs_df['total']/sum(labs_df['total'])
      + pn.theme(axis_text_x = pn.element_text(angle = 90)))
 
 # Absolute and realtive freq for test datas' predicted labels
-test_pred = pickle.load(open('data/data_v6/prediction_test.pkl', 'rb'))
+test_pred = pickle.load(open('data/data_v7/prediction_test_fourthepoch.pkl', 'rb'))
 preds = helper.predicted_labels_scores(test_labels, test_pred)
 pred_labels = helper.predicted_labels(preds)
     

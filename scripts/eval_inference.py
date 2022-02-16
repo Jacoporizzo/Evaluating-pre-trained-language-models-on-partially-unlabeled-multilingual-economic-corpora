@@ -4,10 +4,12 @@ finetuned BERT model on the test data.
 '''
 import pickle
 from utils.helpers import Helper
+from utils.doclevel import DocLevel
 
+### Evaluation on sentence level
 # Import test data and predictions
-test_data = pickle.load(open('data/data_v5/test_data_v5.pkl', 'rb'))
-predictions = pickle.load(open('data/data_v5/prediction_test_v5.pkl', 'rb'))
+test_data = pickle.load(open('data/data_v7/test_data.pkl', 'rb'))
+predictions = pickle.load(open('data/data_v7/prediction_test_fourthepoch.pkl', 'rb'))
 
 # Evaluate results
 helper = Helper()
@@ -23,24 +25,13 @@ predicted_labels = helper.predicted_labels(predicted_labels_scores)
 scores_global = helper.evaluation_scores(true_labels, predicted_labels)
 scores_local = helper.evaluation_scores(true_labels, predicted_labels, level = 'local')
 
-#%%
-'''
-Evalaution of predictions for fulltexts' predictions.
-'''
-# Compute inference using entire text of labelled documents
-fulltext = pickle.load(open('data/labelled_doc.pkl', 'rb'))
-ft_preds = pickle.load(open('data/data_v5/prediction_fulltext_v5.pkl', 'rb'))
+### Evaluation on document level
+docs = DocLevel()
 
-# Evaluate results
-helper = Helper()
+document_labels = docs.doc_labels(test_data)
+document_predictions = docs.doc_predictions(test_data, predictions)
 
-# Get true labels 
-ft_true = helper.actual_labels(fulltext['labels'])
+document_cls = docs.remove_empty_class(document_labels, document_predictions)
 
-# Get predicted labels
-ft_predicted_ls = helper.predicted_labels_scores(ft_true, ft_preds)
-ft_predicted = helper.predicted_labels(ft_predicted_ls)
-
-# Compute evaluation metrics
-ft_global = helper.evaluation_scores(ft_true, ft_predicted)
-ft_local = helper.evaluation_scores(ft_true, ft_predicted, level = 'local')
+doc_local_eval = docs.doc_evaluations(document_cls['label_true'], document_cls['label_predicted'], 'local')
+doc_global_eval = docs.doc_evaluations(document_cls['label_true'], document_cls['label_predicted'])

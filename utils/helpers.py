@@ -219,8 +219,8 @@ class Helper:
         Returns
         -------
         metrics
-            Dictionary (for global level) or dataframe (for local level) 
-            with the the four evaluation metrics.
+            Dictionary (global level) or df (local level) with the
+            evaluation metrics.
 
         '''
         VALID_EVAL = {'macro', 'micro', 'weighted', None, 'samples'}
@@ -350,3 +350,34 @@ class Helper:
         data.drop('label_string', axis = 1, inplace = True)
 
         return data
+
+    def array_probs(self, predictions):
+        '''
+        Get a multdimensional array with the predicted probabilities.
+
+        Parameters
+        ----------
+        predictions : list
+            List of lists of dictionaries containing the predicted scores for
+            each label for each instance.
+
+        Returns
+        -------
+        array_probs : array
+            Numpy array of objects.
+
+        '''
+        df = pd.DataFrame(predictions)
+        df_values = df.values
+
+        # Create empty array and extract probs
+        array_probs = np.zeros(shape = df.shape)
+
+        for i in range(len(df_values)):
+            instance = df_values[i]
+            probs = []
+            for j in instance:
+                probs.append(j['score'])
+            array_probs[i] = probs
+        
+        return np.asarray(array_probs)

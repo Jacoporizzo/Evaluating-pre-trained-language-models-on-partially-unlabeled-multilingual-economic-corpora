@@ -58,6 +58,7 @@ class Helper:
 
         df = pd.DataFrame()
         df['text'] = data['English_sentences']
+        df['hash'] = data['English_hash']
         df['label'] = binary_labels.values.tolist()
 
         return df
@@ -83,45 +84,6 @@ class Helper:
         df = pd.DataFrame()
         df['text'] = data['ItemText']
         df['label'] = binary_labels.values.tolist()
-
-        return df
-
-    def fulltext_labels(self, data):
-        '''
-        Creates df containing the labelled inputs with all the
-        classes of the document to which they belong (i.e. document-level approach).
-
-        Parameters
-        ----------
-        data : dataframe
-            Dataframe containing the Englich goldstandards. Already saved and
-            can be directly imported. 
-
-        Returns
-        -------
-        df : dataframe
-            Dataframe with aggregated labels for each document 
-            (i.e. each instance of the document).
-
-        '''
-        # Create binary labels for each instance
-        binary_labels = data.iloc[:,6:28].astype(int)
-        data['binary_label'] = binary_labels.values.tolist()
-
-        # Aggregate labels and return df
-        sents, hashs, labs =  [], [], []
-
-        unique_hash = data['English_hash'].unique()
-        for uhash in unique_hash:
-            subset = data[data['English_hash'] == uhash]
-            aggregate = np.array(list(map(any, zip(*subset['binary_label']))), dtype = int)
-            sents.extend(subset['English_sentences'])
-            hashs.extend(subset['English_hash'])
-            labs.extend([aggregate] * len(subset))
-
-        df = pd.DataFrame({'text': sents,
-                           'hash': hashs,
-                           'label': labs})
 
         return df
 
@@ -203,7 +165,38 @@ class Helper:
             pred_labs.append(multi_labels)
         
         return pred_labs
+
+    def threshold_classification(self, predictions, threshold = 0.5):
+        '''
+        Filter all predictions' output according to a user-defined 
+        threshold. 
+
+        Parameters
+        ----------
+        predictions : list
+            List of dictionaries containing the score for each label for
+            each instance. Output of forward pass of the model. Can be loaded 
+            directly from the data folder
+        threshold : float, optional
+            Threshold for the classification in one class. Must be in the
+            range [0,1]. The default is 0.5.
+
+        Returns
+        -------
+        predictions_list : list 
+            List of dictionaries with filtered label and score for each
+            instance according to threshold.
+
+        '''
+        predictions_list = []
+        for lst in predictions:
+            flatten_list = []
+            for i in lst:
+                flatten_list.append(i)
+            predictions_list.append([d for d in flatten_list if d['score'] >= threshold])
             
+        return predictions_list
+    
     def evaluation_scores(self, true_labels, predicted_labels, level = 'global', average = 'macro'):
         '''
         Compute the evaluation metrics (accuracy only globally) for the test dataset.
@@ -286,7 +279,23 @@ class Helper:
         return cm
 
     def link_classes(self, forms8k):
+        '''
+        Linking of German classes to the SEC items. The US data, whose items
+        do not match any German classes are first removed from the final 
+        dataset. 
 
+        Parameters
+        ----------
+        forms8k : df
+            Dataframe of the Forms 8k data.
+
+        Returns
+        -------
+        data : df
+            Dataframe containing each Forms 8k instance linked (i.e. labelled) 
+            to a German class.
+
+        '''
         labels_names = self.get_labels_names()
 
         # Items to be removed

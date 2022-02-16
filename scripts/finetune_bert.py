@@ -8,10 +8,12 @@ hub.
 import pickle
 import numpy as np
 from datasets import Dataset
+from utils.dynamicpad import DynamicPadDataset
 from sklearn.metrics import precision_recall_fscore_support, accuracy_score
 from sklearn.model_selection import train_test_split
 from transformers import (AutoModelForSequenceClassification,
                           AutoTokenizer,
+                          DataCollatorWithPadding,
                           TrainingArguments,
                           Trainer)
 
@@ -43,24 +45,26 @@ training_args = TrainingArguments(
     learning_rate = 4e-5,
     per_device_train_batch_size = 16,
     per_device_eval_batch_size = 16,
-    num_train_epochs = 12,
+    num_train_epochs = 8,
     weight_decay = 0.01,
     logging_dir = '../results/logs',
     logging_first_step = True,
     logging_strategy = 'epoch',
     save_strategy = 'epoch',
-    save_total_limit = 1
+    #save_total_limit = 1,
 )
 
-# Tokenization
+# Initialize tokenizer
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 
-def tokenize_function(input):
-    return tokenizer(input['text'], padding = 'max_length', truncation = True)
+#-----------------------------------------------
+# Section for tokenization with fix padding
+#def tokenize_function(input):
+#    return tokenizer(input['text'], padding = 'max_length', truncation = True)
 
-train_df = train.map(tokenize_function, batched = True)
-test_df = test.map(tokenize_function, batched = True)
-dev_df = dev.map(tokenize_function, batched = True)
+#train_df = train.map(tokenize_function, batched = True)
+#test_df = test.map(tokenize_function, batched = True)
+#dev_df = dev.map(tokenize_function, batched = True)
 
 # Save datasets
 #with open('data/train_data.pkl', 'wb') as fp:
@@ -73,8 +77,16 @@ dev_df = dev.map(tokenize_function, batched = True)
 #    pickle.dump(dev_df, fp)
 
 # Set data to right format
-train_df.set_format(type = 'torch', columns = ['input_ids', 'token_type_ids', 'attention_mask'], output_all_columns = True)
-dev_df.set_format(type = 'torch', columns = ['input_ids', 'token_type_ids', 'attention_mask'], output_all_columns = True)
+#train_df.set_format(type = 'torch', columns = ['input_ids', 'token_type_ids', 'attention_mask'], output_all_columns = True)
+#dev_df.set_format(type = 'torch', columns = ['input_ids', 'token_type_ids', 'attention_mask'], output_all_columns = True)
+#-----------------------------------------------
+
+# Dynamic padding with data collator
+data_collator = DataCollatorWithPadding(tokenizer)
+
+# Tokenize data with dynamic padding
+train_df = DynamicPadDataset(train, tokenizer)
+dev_df = DynamicPadDataset(dev, tokenizer)
 
 # Define accuracy metric
 def compute_metric(preds):
@@ -88,12 +100,14 @@ def compute_metric(preds):
 # Initialize model and start trainig (i.e. finetuning)
 model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels = 22, problem_type = 'multi_label_classification')
 # Modify dropout prob within the Encoder (default to 0.1, see BertConfig)
-# model = AutoModelForSequenceClassification-from_pretrained(model_name, num_labels = 22, hidden_dropout_prob = 0.35, problem_type = 'multi_label_classification')
+# model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels = 22, hidden_dropout_prob = 0.35, problem_type = 'multi_label_classification')
 trainer = Trainer(
     model = model,
     args = training_args,
     train_dataset = train_df,
     eval_dataset = dev_df,
+    data_collator = data_collator,
+    tokenizer = tokenizer,
     compute_metrics = compute_metric
 )
 

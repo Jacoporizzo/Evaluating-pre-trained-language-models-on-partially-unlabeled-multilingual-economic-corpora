@@ -9,6 +9,8 @@ import pandas as pd
 import pickle
 import numpy as np
 from utils.helpers import Helper
+from sklearn.metrics import precision_recall_fscore_support, accuracy_score
+from sklearn.preprocessing import MultiLabelBinarizer
 
 class DocLevel:
 
@@ -92,3 +94,63 @@ class DocLevel:
                                      'label': [l.tolist() for l in labs]})
         
         return hashed_preds
+
+    def remove_empty_class(self, true_labels, predicted_labels):
+    
+        data = pd.merge(true_labels, predicted_labels, on = 'hash', how = 'inner', suffixes = ('_true', '_predicted'))
+        df = data.copy()
+        
+        # Remove last element from both labels vars, since this is fot the empty class
+        for i in df['label_true']:
+            i.pop(21)
+            
+        for j in df['label_predicted']:
+            j.pop(21)
+        
+        to_remove = []
+        for l in range(len(df)):
+            if ((all(t == 0 for t in df['label_true'][l])) or (all(p == 0 for p in df['label_predicted']))):
+                to_remove.append(True)
+            else:
+                to_remove.append(False)
+        
+        df['to_remove'] = to_remove
+        df.drop(df[df['to_remove'] == True].index, inplace = True)
+        
+        return df
+
+    def doc_evaluations(self, true_labels, predicted_labels, level = 'global', average = 'macro'):
+
+        # Control input parameters
+        VALID_EVAL = {'macro', 'micro', 'weighted', None, 'samples'}
+        VALID_LEVELS = {'global', 'local'}
+        if level not in VALID_LEVELS:
+            raise ValueError("Level must be one of %r." % VALID_LEVELS)
+
+        if average not in VALID_EVAL:
+            raise ValueError("Average must be one of %r." % VALID_EVAL)
+
+        # Binarize as sparse matrix truth and predictions
+        bin_true = MultiLabelBinarizer().fit_transform(true_labels)
+        bin_preds = MultiLabelBinarizer().fit_transform(predicted_labels)
+
+        # Compute metrics
+        acc = accuracy_score(bin_true, bin_preds)
+
+        if level == 'global':
+            pre, rec, f1, _ = precision_recall_fscore_support(bin_true, bin_preds, average = average)
+            metrics = {'accuracy': acc,
+                        'f1': f1,
+                        'precision': pre,
+                        'recall': rec}
+        else:
+            labels_names = self.helper.get_labels_names()
+            labels_names.remove('Empty')
+            pre, rec, f1, sup = precision_recall_fscore_support(bin_true, bin_preds)
+            metrics = pd.DataFrame({'labels': labels_names,
+                                    'precision': pre,
+                                    'recall': rec,
+                                    'f1': f1, 
+                                    'support': sup})
+
+        return metrics

@@ -8,6 +8,7 @@ import pickle
 import pandas as pd
 import plotnine as pn
 from utils.helpers import Helper
+from utils.doclevel import DocLevel
 
 # Import trainer state data and extract relevant info
 eval_data = json.load(open('results/checkpoint-10680_v6/trainer_state.json', 'r'))
@@ -103,3 +104,14 @@ pred_labs_df['proportion'] = pred_labs_df['total']/(sum(pred_labs_df['total']))
 # Compute evaluation metrics for the test data 
 local_metrics = helper.evaluation_scores(test_labels, pred_labels, 'local')
 global_metrics = helper.evaluation_scores(test_labels, pred_labels)
+
+# Evaluation on document level
+docs = DocLevel()
+doc_labels = docs.doc_labels(test_data)
+doc_preds = docs.doc_predictions(test_data, test_pred)
+
+true_doc_labels = helper.actual_labels(doc_labels['label'])
+predicted_doc_labels = helper.actual_labels(doc_preds['label'])
+
+local_doc_eval = docs.doc_evaluations(true_doc_labels, predicted_doc_labels, 'local')
+global_doc_eval = docs.doc_evaluations(true_doc_labels, predicted_doc_labels)

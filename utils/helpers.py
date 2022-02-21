@@ -353,7 +353,7 @@ class Helper:
 
     def array_probs(self, predictions):
         '''
-        Get a multdimensional array with the predicted probabilities.
+        Get a multidimensional array with the predicted probabilities.
 
         Parameters
         ----------

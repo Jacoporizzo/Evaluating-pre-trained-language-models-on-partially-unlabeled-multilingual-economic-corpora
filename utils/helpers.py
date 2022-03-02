@@ -56,10 +56,9 @@ class Helper:
         # Columns subsetting if using provided dataframe
         binary_labels = data.iloc[:,6:28].astype(int)
 
-        df = pd.DataFrame()
-        df['text'] = data['English_sentences']
-        df['hash'] = data['English_hash']
-        df['label'] = binary_labels.values.tolist()
+        df = pd.DataFrame({'text': data['English_sentences'],
+                           'hash': data['English_hash'],
+                           'label': binary_labels.values.tolist()})
 
         return df
 
@@ -81,9 +80,9 @@ class Helper:
         # Columns subsetting if using provided dataframe
         binary_labels = data.iloc[:,6:28].astype(int)
 
-        df = pd.DataFrame()
-        df['text'] = data['ItemText']
-        df['label'] = binary_labels.values.tolist()
+        df = pd.DataFrame({'hash': data['Hash'],
+                           'text': data['ItemText'],
+                           'label': binary_labels.values.tolist()})
 
         return df
 

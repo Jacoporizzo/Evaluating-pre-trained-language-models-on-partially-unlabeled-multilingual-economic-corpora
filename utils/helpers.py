@@ -324,7 +324,7 @@ class Helper:
         link_classes = {np.float64(1.01): ['SEO', 'Debt'],
                         np.float64(1.03): ['Insolvenzplan', 'Insolvenzantrag'],
                         np.float64(2.01): ['Beteiligung', 'Real_Invest'],
-                        np.float64(2.02): ['Guidance', 'Gewinnwarnung'],
+                        np.float64(2.02): ['Earnings', 'Guidance', 'Gewinnwarnung'],
                         np.float64(2.03): ['Debt'],
                         np.float64(2.05): ['Restructuring'],
                         np.float64(3.01): ['Delisting'],

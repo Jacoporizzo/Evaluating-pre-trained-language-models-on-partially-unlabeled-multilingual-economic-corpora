@@ -14,7 +14,7 @@ predictions = pickle.load(open('data/predictions_8k.pkl', 'rb'))
 helper = Helper()
 
 # Get true labels of 8k (i.e. linked true labels)
-true_labels = data['idx_label']
+true_labels = helper.actual_labels(data['label'])
 
 # Get predicted labels for 8k
 predicted_labels_scores = helper.predicted_labels_scores(true_labels, predictions)
@@ -27,8 +27,8 @@ scrs_local = helper.evaluation_scores(true_labels, predicted_labels, level = 'lo
 ### Evaluation on document level
 docs = DocLevel()
 
-items_labels = docs.doc_labels(data)
-items_predictions = docs.doc_predictions(data, predictions)
+items_labels = docs.labels_8k(data)
+items_predictions = docs.predictions_8k(data, predictions)
 
 items_cls = docs.remove_empty_class(items_labels, items_predictions)
 

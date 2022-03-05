@@ -10,6 +10,7 @@ import pickle
 import numpy as np
 from utils.helpers import Helper
 from sklearn.metrics import precision_recall_fscore_support, accuracy_score
+from sklearn.preprocessing import MultiLabelBinarizer
 
 class DocLevel:
 
@@ -30,7 +31,9 @@ class DocLevel:
             Dataframe containing aggregated true labels per hash (i.e. document).
 
         '''
-        df = pd.DataFrame(data)
+        #df = pd.DataFrame(data)
+        df_data = data.data
+        df = df_data.to_pandas()
         hashs, labs = [], []
         unique_hash = df['hash'].unique()
         
@@ -66,7 +69,9 @@ class DocLevel:
             Dataframe containing aggregated predicted labels per hash (i.e. document).
 
         '''
-        df = pd.DataFrame(data)
+        #df = pd.DataFrame(data)
+        df_data = data.data
+        df = df_data.to_pandas()
         df_thresh = self.helper.threshold_classification(predictions, threshold = threshold)
         preds = self.helper.predicted_labels(df_thresh)
 
@@ -117,7 +122,7 @@ class DocLevel:
         data = pd.merge(true_labels, predicted_labels, on = 'hash', how = 'inner', suffixes = ('_true', '_predicted'))
         df = data.copy()
         
-        # Remove last element from both labels vars, since this is fot the empty class
+        # Remove last element from both labels vars, since this is for the empty class
         for i in df['label_true']:
             i.pop(21)
             
@@ -138,7 +143,7 @@ class DocLevel:
 
     def doc_evaluations(self, true_labels, predicted_labels, level = 'global', average = 'macro'):
         '''
-        Compute evaluation metrics on dcoument level
+        Compute evaluation metrics on document level
 
         Parameters
         ----------
@@ -163,7 +168,7 @@ class DocLevel:
         Returns
         -------
         metrics
-            DIctionary (global level) or df (local level) with the 
+            Dictionary (global level) or df (local level) with the 
             evaluation metrics.
 
         '''
@@ -200,3 +205,84 @@ class DocLevel:
                                     'support': sup})
 
         return metrics
+
+    def labels_8k(self, data, binary_labs = True):
+        '''
+        Get the label(s) for each 8k.
+
+        Parameters
+        ----------
+        data : df
+            Arrow dataframe of the 8k-forms used for prediction
+
+        Returns
+        -------
+        grouped_df : df
+            Df with labels for each document
+        '''
+        labels = self.helper.actual_labels(data['label'])
+        df = pd.DataFrame({'hash': data['hash'],
+                           'label': labels})
+        grouped = df.groupby('hash')['label'].first()
+
+        grouped_df = pd.DataFrame({'hash': grouped.index,
+                                   'label': grouped}).reset_index(drop = True)
+
+        if binary_labs:
+            binarized = []
+            for i in grouped_df['label']:
+                zero = np.zeros(22, dtype = int)
+                zero[i] = 1
+                binarized.append(zero.tolist())
+            grouped_df['label'] = binarized
+        else:
+            pass
+
+        return grouped_df
+
+    def predictions_8k(self, data, predictions, threshold = 0.5, binary_labs = True):
+        '''
+        Aggregate true labels on document level.
+
+        Parameters
+        ----------
+        data : df
+            Dataframe of 8k forms.
+        predictions: df
+            List of dictionaries of the score for each label of the
+            predictions (output of the model).
+        threshold: float, optional
+            Threshold to set for automatic classification in one class. Must be
+            in the range [0,1]. The default is 0.5
+        
+        Returns
+        -------
+        hashed_true : df
+            Dataframe containing aggregated predicted labels per hash (i.e. document).
+
+        '''
+        df_thresh = self.helper.threshold_classification(predictions, threshold = threshold)
+        preds = self.helper.predicted_labels(df_thresh)
+
+        doc_preds = pd.DataFrame({'hash': data['hash'],
+                                  'label': preds})
+        
+        docs = doc_preds.groupby('hash')['label'].sum()
+
+        docs_df = pd.DataFrame({'hash': docs.index,
+                                'label': docs}).reset_index(drop = True)
+
+        ls = []
+        for i in docs_df['label']:
+            ls.append(sorted(list(set(i))))
+
+        if binary_labs:
+            mlb = MultiLabelBinarizer()
+            binary = mlb.fit_transform(ls)
+            docs_df['label'] = binary.tolist()
+        else:
+            docs_df['label'] = ls
+
+        return docs_df
+
+

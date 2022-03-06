@@ -123,11 +123,15 @@ class DocLevel:
         df = data.copy()
         
         # Remove last element from both labels vars, since this is for the empty class
+        true, pred = [], []
         for i in df['label_true']:
-            i.pop(21)
+            true.append(i[:-1])
             
         for j in df['label_predicted']:
-            j.pop(21)
+            pred.append(j[:-1])
+
+        df['label_true'] = true
+        df['label_predicted'] = pred
         
         to_remove = []
         for l in range(len(df)):
@@ -149,10 +153,10 @@ class DocLevel:
         ----------
         true_labels : list
             List with true labels for each hash. Can be established using 
-            helper.actual_labels().
+            doc_labels().
         predicted_labels : list
             List with predicted labels for each hash. Can be established using 
-            helper.actual_labels().
+            doc_preedictions().
         level : str, optional
             Level on which to perform evaluation. Either local or global.
             The default is 'global'.
@@ -285,4 +289,49 @@ class DocLevel:
 
         return docs_df
 
+    def doc_thresholds_comparison(self, data, predictions, ths = np.arange(0.05, 0.55, 0.05)):
+        '''
+        Evaluate the model on different thresholds with f1, precision 
+        and recall as metrics.
 
+        Parameters
+        ----------
+        data : df
+            List of true labels. Output of doc_labels().
+        predicted_labels : list
+            List of predicted labels. Model's output.
+        ths : array
+            Array of interval with thresholds. Default to thresholds 
+            in interval [0.05, 0.5] in 0.05 steps.
+
+        Returns
+        -------
+        ths_df : dataframe
+            Dataframe reporting evaluation metrics for given thresholds.
+        '''
+        thresholds, acc, f1, prec, rec = [], [], [], [], []
+
+        doc_lab = self.doc_labels(data)
+        
+        for t in ths:
+            thresh = round(t, 2)
+            thresh_pred = self.doc_predictions(data, predictions, thresh)
+            
+            doc_cls = self.remove_empty_class(doc_lab, thresh_pred)
+            
+            true_bin = np.array(list(doc_cls['label_true']))
+            pred_bin = np.array(list(doc_cls['label_predicted']))
+            
+            acc.append(accuracy_score(true_bin, pred_bin))
+            precision, recall, f1_score, _ = precision_recall_fscore_support(true_bin, pred_bin, average = 'macro')
+
+            thresholds.append(thresh)
+            f1.append(f1_score)
+            prec.append(precision)
+            rec.append(recall)
+
+        return pd.DataFrame({'threshold': thresholds,
+                             'accuracy': acc,
+                             'f1-score': f1,
+                             'precision': prec,
+                             'recall': rec})

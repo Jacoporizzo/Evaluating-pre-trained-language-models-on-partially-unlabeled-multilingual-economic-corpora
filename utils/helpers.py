@@ -9,6 +9,7 @@ import pandas as pd
 import pickle
 import torch
 import numpy as np
+from sklearn.preprocessing import MultiLabelBinarizer
 from sklearn.metrics import (precision_recall_fscore_support, 
                              accuracy_score, 
                              confusion_matrix)
@@ -230,8 +231,9 @@ class Helper:
         if average not in VALID_EVAL:
             raise ValueError("Average must be one of %r." % VALID_EVAL)
 
-        true = [item for sublist in true_labels for item in sublist]
-        pred = [item for sublist in predicted_labels for item in sublist]
+        mlb = MultiLabelBinarizer()
+        true = mlb.fit_transform(true_labels)#[item for sublist in true_labels for item in sublist]
+        pred = mlb.fit_transform(predicted_labels)#[item for sublist in predicted_labels for item in sublist]
 
         acc = accuracy_score(true, pred)
 
@@ -447,21 +449,37 @@ class Helper:
         ths_df : dataframe
             Dataframe reporting evaluation metrics for given thresholds.
         '''
-        thresholds, f1, prec, rec = [], [], [], []
+        mlb = MultiLabelBinarizer()
+        thresholds, acc, f1, prec, rec = [], [], [], [], []
+
+        true_bin = mlb.fit_transform(true_labels)
 
         for t in ths:
             thresh = round(t, 2)
             thresh_pred = self.threshold_classification(predicted_labels, thresh)
             preds = self.predicted_labels(thresh_pred)
 
-            evals = self.confusion_threshold(true_labels, preds)
+            #preds_bin = mlb.fit_transform(preds)
+            
+            zero = np.zeros(22)
+            binarized = []        
+            for i in preds:
+                zero = np.zeros(22, dtype = int)
+                zero[i] = 1
+                binarized.append(zero.tolist())
+            
+            preds_bin = np.array(binarized)
+            
+            acc.append(accuracy_score(true_bin, preds_bin))
+            precision, recall, f1_score, _ = precision_recall_fscore_support(true_bin, preds_bin, average = 'macro')
 
             thresholds.append(thresh)
-            f1.append(evals['f1'])
-            prec.append(evals['precision'])
-            rec.append(evals['recall'])
+            f1.append(f1_score)
+            prec.append(precision)
+            rec.append(recall)
 
         return pd.DataFrame({'threshold': thresholds,
+                             'accuracy': acc,
                              'f1-score': f1,
                              'precision': prec,
                              'recall': rec})

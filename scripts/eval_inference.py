@@ -35,3 +35,6 @@ document_cls = docs.remove_empty_class(document_labels, document_predictions)
 
 doc_local_eval = docs.doc_evaluations(document_cls['label_true'], document_cls['label_predicted'], 'local')
 doc_global_eval = docs.doc_evaluations(document_cls['label_true'], document_cls['label_predicted'])
+
+### Evaluation for different thresholds (sent level, i.e. for each data point)
+ths_df = helper.thresholds_comparison(true_labels, predictions)

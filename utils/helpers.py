@@ -9,6 +9,7 @@ import pandas as pd
 import pickle
 import torch
 import numpy as np
+from sklearn.preprocessing import MultiLabelBinarizer
 from sklearn.metrics import (precision_recall_fscore_support, 
                              accuracy_score, 
                              confusion_matrix)
@@ -230,8 +231,9 @@ class Helper:
         if average not in VALID_EVAL:
             raise ValueError("Average must be one of %r." % VALID_EVAL)
 
-        true = [item for sublist in true_labels for item in sublist]
-        pred = [item for sublist in predicted_labels for item in sublist]
+        mlb = MultiLabelBinarizer()
+        true = mlb.fit_transform(true_labels)#[item for sublist in true_labels for item in sublist]
+        pred = mlb.fit_transform(predicted_labels)#[item for sublist in predicted_labels for item in sublist]
 
         acc = accuracy_score(true, pred)
 
@@ -380,3 +382,104 @@ class Helper:
             array_probs[i] = probs
         
         return np.asarray(array_probs)
+
+    def confusion_threshold(self, true_labels, predicted_labels):
+        '''
+        Create confusion matrix for given threshold. Threshold can be
+        set in threshol_classification() and the output of this used
+        as input for predicted_labels (after setting it to right format).
+
+        Parameters
+        ----------
+        true_labels : list
+            List of true labels. Output of actual_labels().
+        predictions : list
+            List of predicted labels. Output of predicted_labels().
+
+        Returns
+        -------
+        scrdict : dict
+            Dictionary reporting f1-score, precision and recall for input data.
+
+        '''
+        conf_lab = []
+        for t, p in zip(true_labels, predicted_labels):
+            if t == p:
+                conf_lab.append('TP')
+            else:
+                if (any(x in t for x in p)) & (len(t) > len(p)):
+                    conf_lab.append('FN')
+                elif (any(x in t for x in p)) & (len(p) > len(t)):
+                    conf_lab.append('FP')
+                else:
+                    conf_lab.append('TN')
+
+        tp = conf_lab.count('TP')
+        fp = conf_lab.count('FP')
+        fn = conf_lab.count('FN')
+        tn = conf_lab.count('TN')
+
+        precision = tp / (tp + fp)
+        recall = tp / (tp + fn)
+        f1 = 2 * ((precision * recall) / (precision + recall))
+
+        scrdict = {'precision': precision, 
+                   'recall': recall,
+                   'f1': f1}
+        
+        return scrdict
+
+    def thresholds_comparison(self, true_labels, predicted_labels, ths = np.arange(0.05, 0.55, 0.05)):
+        '''
+        Evaluate the model on different thresholds with f1, precision 
+        and recall as metrics.
+
+        Parameters
+        ----------
+        true_labels : list
+            List of true labels. Output of actual_labels().
+        predicted_labels : list
+            List of predicted labels. Model's output.
+        ths : array
+            Array of interval with thresholds. Default to thresholds 
+            in interval [0.05, 0.5] in 0.05 steps.
+
+        Returns
+        -------
+        ths_df : dataframe
+            Dataframe reporting evaluation metrics for given thresholds.
+        '''
+        mlb = MultiLabelBinarizer()
+        thresholds, acc, f1, prec, rec = [], [], [], [], []
+
+        true_bin = mlb.fit_transform(true_labels)
+
+        for t in ths:
+            thresh = round(t, 2)
+            thresh_pred = self.threshold_classification(predicted_labels, thresh)
+            preds = self.predicted_labels(thresh_pred)
+
+            #preds_bin = mlb.fit_transform(preds)
+            
+            zero = np.zeros(22)
+            binarized = []        
+            for i in preds:
+                zero = np.zeros(22, dtype = int)
+                zero[i] = 1
+                binarized.append(zero.tolist())
+            
+            preds_bin = np.array(binarized)
+            
+            acc.append(accuracy_score(true_bin, preds_bin))
+            precision, recall, f1_score, _ = precision_recall_fscore_support(true_bin, preds_bin, average = 'macro')
+
+            thresholds.append(thresh)
+            f1.append(f1_score)
+            prec.append(precision)
+            rec.append(recall)
+
+        return pd.DataFrame({'threshold': thresholds,
+                             'accuracy': acc,
+                             'f1-score': f1,
+                             'precision': prec,
+                             'recall': rec})

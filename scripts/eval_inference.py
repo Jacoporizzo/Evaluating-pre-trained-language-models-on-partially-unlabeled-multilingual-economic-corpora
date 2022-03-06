@@ -3,6 +3,7 @@ Evaluation of the predictions of the
 finetuned BERT model on the test data.
 '''
 import pickle
+import numpy as np
 from utils.helpers import Helper
 from utils.doclevel import DocLevel
 
@@ -35,3 +36,7 @@ document_cls = docs.remove_empty_class(document_labels, document_predictions)
 
 doc_local_eval = docs.doc_evaluations(document_cls['label_true'], document_cls['label_predicted'], 'local')
 doc_global_eval = docs.doc_evaluations(document_cls['label_true'], document_cls['label_predicted'])
+
+### Evaluation for different thresholds (sent level, i.e. for each data point)
+ths_df = helper.thresholds_comparison(true_labels, predictions, np.arange(0.05, 1, 0.05))
+ths_df_doc = docs.doc_thresholds_comparison(test_data, predictions, np.arange(0.05, 1, 0.05))

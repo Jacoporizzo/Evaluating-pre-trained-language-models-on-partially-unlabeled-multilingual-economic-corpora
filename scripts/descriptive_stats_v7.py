@@ -21,7 +21,7 @@ general = [dic for dic in performance if len(dic) == 4]
 df_metrics = pd.DataFrame(metrics)
 df_general = pd.DataFrame(general)
 
-# Plot
+# Plot accuracy over epochs (accuracy_testset)
 (pn.ggplot(df_metrics, pn.aes(x = 'epoch', y = 'eval_accuracy'))
      + pn.geom_line()
      + pn.xlim(1,8)
@@ -29,9 +29,9 @@ df_general = pd.DataFrame(general)
      + pn.geom_point()
      + pn.scale_x_continuous(name="Epoch", limits=[1, 8], 
                              breaks = [1, 2, 3, 4, 5, 6, 7, 8])
-     + pn.labs(y = 'Accuracy', title = 'Accuracy on evaluation dataset per epoch'))
+     + pn.labs(y = 'Accuracy', x = 'Epoch', title = 'Accuracy on evaluation dataset per epoch'))
 
-# Validation and training loss
+# Validation and training loss (loss_trainevalset)
 df_comparison = pd.DataFrame({'epoch': df_metrics['epoch'],
                               'eval_loss': df_metrics['eval_loss'],
                               'train_loss': df_general['loss'][1:].reset_index(drop=True)})
@@ -42,7 +42,7 @@ df_comparison = pd.DataFrame({'epoch': df_metrics['epoch'],
      + pn.geom_line(pn.aes(y = 'train_loss', color = '"red"'))
      + pn.scale_x_continuous(name = 'Epoch', limits = [1, 8],
                            breaks = [1, 2, 3, 4, 5, 6, 7, 8])
-     + pn.labs(y = 'Loss', title = 'Train and validation loss per epoch')
+     + pn.labs(y = 'Loss', x = 'Epoch', title = 'Train and validation loss per epoch')
      + pn.scale_colour_identity(guide = 'legend', name = 'Set',
                                 breaks = ['red', 'blue'],
                                 labels = ['Train', 'Validation']))
@@ -67,13 +67,13 @@ for i in test_labels:
 labs_df = pd.DataFrame.from_dict(dict([[x, test_names.count(x)] for x in set(test_names)]), orient = 'index').reset_index().rename(columns = {0: 'total'})
 (pn.ggplot(labs_df, pn.aes(x = 'index', y = 'total'))
      + pn.geom_col(color = 'blue', fill = 'blue')
-     + pn.labs(y = 'Absolute frequency', title = 'True labels in test dataset')
+     + pn.labs(y = 'Absolute frequency', x = '', title = 'True labels in test dataset')
      + pn.theme(axis_text_x = pn.element_text(angle = 90)))
 
 labs_df['proportion'] = labs_df['total']/sum(labs_df['total'])
 (pn.ggplot(labs_df, pn.aes(x = 'index', y = 'proportion'))
      + pn.geom_col(color = 'blue', fill = 'blue')
-     + pn.labs(y = 'Relative frequency', title = 'True labels in test dataset')
+     + pn.labs(y = 'Relative frequency', x = '', title = 'True labels in test dataset')
      + pn.theme(axis_text_x = pn.element_text(angle = 90)))
 
 # Absolute and realtive freq for test datas' predicted labels
@@ -91,11 +91,11 @@ for i in pred_labels:
 pred_labs_df = pd.DataFrame.from_dict(dict([[x, pred_names.count(x)] for x in set(pred_names)]), orient = 'index').reset_index().rename(columns = {0: 'total'})
 (pn.ggplot(pred_labs_df, pn.aes(x = 'index', y = 'total'))
      + pn.geom_col(color = 'blue', fill = 'blue')
-     + pn.labs(y = 'Absolute frequency', title = 'Predicted labels in test dataset')
+     + pn.labs(y = 'Absolute frequency', x = '', title = 'Predicted labels in test dataset')
      + pn.theme(axis_text_x = pn.element_text(angle = 90)))
 
 pred_labs_df['proportion'] = pred_labs_df['total']/(sum(pred_labs_df['total']))
 (pn.ggplot(pred_labs_df, pn.aes(x = 'index', y = 'proportion'))
      + pn.geom_col(color = 'blue', fill = 'blue')
-     + pn.labs(y = 'Realtive frequency', title = 'Predicted labels in test dataset')
+     + pn.labs(y = 'Realtive frequency', x = '', title = 'Predicted labels in test dataset')
      + pn.theme(axis_text_x = pn.element_text(angle = 90)))

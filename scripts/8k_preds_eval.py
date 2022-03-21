@@ -17,8 +17,8 @@ helper = Helper()
 true_labels = helper.actual_labels(data['label'])
 
 # Get predicted labels for 8k
-predicted_labels_scores = helper.predicted_labels_scores(true_labels, predictions)
-predicted_labels = helper.predicted_labels(predicted_labels_scores)
+predicted_labels_thr = helper.threshold_classification(predictions, threshold = 0.4)
+predicted_labels = helper.predicted_labels(predicted_labels_thr)
 
 # Compute evaluation metrics
 scrs_global = helper.evaluation_scores(true_labels, predicted_labels)
@@ -28,7 +28,7 @@ scrs_local = helper.evaluation_scores(true_labels, predicted_labels, level = 'lo
 docs = DocLevel()
 
 items_labels = docs.labels_8k(data)
-items_predictions = docs.predictions_8k(data, predictions)
+items_predictions = docs.predictions_8k(data, predictions, threshold = 0.4)
 
 items_cls = docs.remove_empty_class(items_labels, items_predictions)
 

@@ -246,7 +246,7 @@ class DocLevel:
 
     def predictions_8k(self, data, predictions, threshold = 0.5, binary_labs = True):
         '''
-        Aggregate true labels on document level.
+        Aggregate predicted labels on document level.
 
         Parameters
         ----------
@@ -281,7 +281,7 @@ class DocLevel:
             ls.append(sorted(list(set(i))))
 
         if binary_labs:
-            mlb = MultiLabelBinarizer()
+            mlb = MultiLabelBinarizer(classes=np.arange(22))
             binary = mlb.fit_transform(ls)
             docs_df['label'] = binary.tolist()
         else:

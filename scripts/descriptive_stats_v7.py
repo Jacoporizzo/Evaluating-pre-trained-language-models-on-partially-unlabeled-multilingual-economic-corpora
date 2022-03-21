@@ -78,7 +78,7 @@ labs_df['proportion'] = labs_df['total']/sum(labs_df['total'])
 
 # Absolute and realtive freq for test datas' predicted labels
 test_pred = pickle.load(open('data/data_v7/prediction_test_fourthepoch.pkl', 'rb'))
-preds = helper.predicted_labels_scores(test_labels, test_pred)
+preds = helper.threshold_classification(test_pred, threshold = 0.4)
 pred_labels = helper.predicted_labels(preds)
     
 # Save labels' names
@@ -97,5 +97,5 @@ pred_labs_df = pd.DataFrame.from_dict(dict([[x, pred_names.count(x)] for x in se
 pred_labs_df['proportion'] = pred_labs_df['total']/(sum(pred_labs_df['total']))
 (pn.ggplot(pred_labs_df, pn.aes(x = 'index', y = 'proportion'))
      + pn.geom_col(color = 'blue', fill = 'blue')
-     + pn.labs(y = 'Realtive frequency', x = '', title = 'Predicted labels in test dataset')
+     + pn.labs(y = 'Relative frequency', x = '', title = 'Predicted labels in test dataset')
      + pn.theme(axis_text_x = pn.element_text(angle = 90)))

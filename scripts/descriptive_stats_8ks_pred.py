@@ -36,7 +36,7 @@ labs_df['proportion'] = labs_df['total']/sum(labs_df['total'])
      + pn.theme(axis_text_x = pn.element_text(angle = 90)))
 
 ## Plot distribution of predicted labels (8k_pred_sent_relfreq)
-preds = helper.predicted_labels_scores(test_labels, predictions)
+preds = helper.threshold_classification(predictions, threshold = 0.4)
 pred_labels = helper.predicted_labels(preds)
     
 # Save labels' names

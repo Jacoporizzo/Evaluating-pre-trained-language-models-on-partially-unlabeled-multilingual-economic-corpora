@@ -138,34 +138,6 @@ class Helper:
 
         return predicted_labels
 
-    def predicted_labels(self, prediction):
-        '''
-        Get list of predicted labels.
-
-        Parameters
-        ----------
-        prediction : list
-            List of dictinaries (output of predicted_labels_score).
-
-        Returns
-        -------
-        pred_labs : list
-            List of predicted label(s) for given text.
-
-        '''
-        labels = [[d["label"] for d in row] for row in prediction]
-
-        pred_labs = []
-        for l in range(len(labels)):
-            nr_lab = len(labels[l])
-            multi_labels = []
-            for pos in range(nr_lab):
-                multi_labels.append(int(labels[l][pos].split('LABEL_',1)[1]))
-                multi_labels.sort()
-            pred_labs.append(multi_labels)
-        
-        return pred_labs
-
     def threshold_classification(self, predictions, threshold = 0.5):
         '''
         Filter all predictions' output according to a user-defined 
@@ -196,6 +168,35 @@ class Helper:
             predictions_list.append([d for d in flatten_list if d['score'] >= threshold])
             
         return predictions_list
+
+    def predicted_labels(self, prediction):
+        '''
+        Get list of predicted labels.
+
+        Parameters
+        ----------
+        prediction : list
+            List of dictinaries. Output of threshold_classification
+            (or predicted_labels_score).
+
+        Returns
+        -------
+        pred_labs : list
+            List of predicted label(s) for given text.
+
+        '''
+        labels = [[d["label"] for d in row] for row in prediction]
+
+        pred_labs = []
+        for l in range(len(labels)):
+            nr_lab = len(labels[l])
+            multi_labels = []
+            for pos in range(nr_lab):
+                multi_labels.append(int(labels[l][pos].split('LABEL_',1)[1]))
+                multi_labels.sort()
+            pred_labs.append(multi_labels)
+        
+        return pred_labs
     
     def evaluation_scores(self, true_labels, predicted_labels, level = 'global', average = 'macro'):
         '''
@@ -231,7 +232,7 @@ class Helper:
         if average not in VALID_EVAL:
             raise ValueError("Average must be one of %r." % VALID_EVAL)
 
-        mlb = MultiLabelBinarizer()
+        mlb = MultiLabelBinarizer(classes=np.arange(22))
         true = mlb.fit_transform(true_labels)#[item for sublist in true_labels for item in sublist]
         pred = mlb.fit_transform(predicted_labels)#[item for sublist in predicted_labels for item in sublist]
 

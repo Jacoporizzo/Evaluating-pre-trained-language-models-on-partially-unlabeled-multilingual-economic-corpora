@@ -73,11 +73,11 @@ model = AutoModelForSequenceClassification.from_pretrained(model_path)
 #model.eval()
 
 # Make predictions with pipeline (for data w/o Items 7 and 8)
-classifier = pipeline('text-classification', model = model, return_all_scores = True, tokenizer = tokenizer, function_to_apply = 'sigmoid', device = 0)
+classifier = pipeline('text-classification', model = model, return_all_scores = True, tokenizer = tokenizer, truncation = True, function_to_apply = 'sigmoid', device = 0)
 
 #with torch.no_grad():
 prediction = classifier(df_inf['text'])
 
 # Save predictions
-with open('predictions_8k.pkl', 'wb') as fp:
+with open('data/predictions_8k.pkl', 'wb') as fp:
     pickle.dump(prediction, fp)

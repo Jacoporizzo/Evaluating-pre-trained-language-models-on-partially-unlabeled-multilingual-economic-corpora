@@ -16,18 +16,16 @@ helper = Helper()
 lab_names = helper.get_labels_names()
 dicts = dict(zip(range(0,22), lab_names))
 
-test_labels = []
-for lab in df['label']:
-    test_labels.append([idx for idx in range(len(lab)) if lab[idx] == 1])
+true_labels = helper.actual_labels(data['label'])
 
-test_names = []
-for i in test_labels:
+true_names = []
+for i in true_labels:
     for key in dicts:
         if key in i:
-            test_names.append(dicts[key])
+            true_names.append(dicts[key])
             
 # Get summary of true labels
-labs_df = pd.DataFrame.from_dict(dict([[x, test_names.count(x)] for x in set(test_names)]), orient = 'index').reset_index().rename(columns = {0: 'total'})
+labs_df = pd.DataFrame.from_dict(dict([[x, true_names.count(x)] for x in set(true_names)]), orient = 'index').reset_index().rename(columns = {0: 'total'})
 labs_df['proportion'] = labs_df['total']/sum(labs_df['total'])
 
 (pn.ggplot(labs_df, pn.aes(x = 'index', y = 'proportion'))

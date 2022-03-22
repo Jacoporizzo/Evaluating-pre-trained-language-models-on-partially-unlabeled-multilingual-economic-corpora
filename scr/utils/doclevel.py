@@ -135,7 +135,7 @@ class DocLevel:
         
         to_remove = []
         for l in range(len(df)):
-            if ((all(t == 0 for t in df['label_true'][l])) or (all(p == 0 for p in df['label_predicted']))):
+            if ((all(t == 0 for t in df['label_true'][l])) or (all(p == 0 for p in df['label_predicted'][l]))):
                 to_remove.append(True)
             else:
                 to_remove.append(False)

@@ -2,7 +2,6 @@
 Evaluation of the output from the SBERT model for
 the final df with the labelled english sentences.
 '''
-
 import pickle 
 
 # Import data

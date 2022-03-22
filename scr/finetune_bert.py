@@ -40,14 +40,14 @@ dev = Dataset.from_pandas(dev)
 # Model's name and paramaters and metrics
 model_name = 'bert-base-cased'
 training_args = TrainingArguments(
-    output_dir = '../results',
+    output_dir = '/bert',
     evaluation_strategy = 'epoch',
     learning_rate = 4e-5,
     per_device_train_batch_size = 16,
     per_device_eval_batch_size = 16,
     num_train_epochs = 8,
     weight_decay = 0.01,
-    logging_dir = '../results/logs',
+    logging_dir = '/bert/logs',
     logging_first_step = True,
     logging_strategy = 'epoch',
     save_strategy = 'epoch',
@@ -67,13 +67,13 @@ tokenizer = AutoTokenizer.from_pretrained(model_name)
 #dev_df = dev.map(tokenize_function, batched = True)
 
 # Save datasets
-#with open('data/train_data.pkl', 'wb') as fp:
+#with open('data/data_bert/train_data.pkl', 'wb') as fp:
 #    pickle.dump(train_df, fp)
 #
-#with open('data/test_data.pkl', 'wb') as fp:
+#with open('data/data_bert/test_data.pkl', 'wb') as fp:
 #    pickle.dump(test_df, fp)
 #
-#with open('data/dev_data.pkl', 'wb') as fp:
+#with open('data/data_bert/dev_data.pkl', 'wb') as fp:
 #    pickle.dump(dev_df, fp)
 
 # Set data to right format

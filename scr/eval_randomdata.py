@@ -36,7 +36,7 @@ import matplotlib.pyplot as plt
 #rand_labelled = label.merge_labels(rand_cosines, goldstd)
 
 # Import the final df
-manual_trans = pd.read_excel('data/Manual_labelling.xlsx', sheet_name = 'Sheet1')
+manual_trans = pd.read_excel('data/manual_labelling.xlsx', sheet_name = 'Sheet1')
 
 # Get absolute and relative frequency of manual equals output
 manual_trans['Manual_equals_output'].sum()

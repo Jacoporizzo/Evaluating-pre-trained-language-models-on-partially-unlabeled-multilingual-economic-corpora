@@ -65,7 +65,7 @@ with open('data/8k_wo78.pkl', 'wb') as fp:
 
 # Load model and tokenizer
 model_name = 'bert-base-cased'
-model_path = 'results/bert_v7/checkpoint-3560'
+model_path = 'bert/checkpoint-3560'
 
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = AutoModelForSequenceClassification.from_pretrained(model_path)

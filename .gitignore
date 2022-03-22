@@ -132,9 +132,9 @@ dmypy.json
 .vscode/
 
 # various folders
-data/
+scr/data/
 images/
-results/
+scr/bert/
 models/
 jupyter_notebooks/
 

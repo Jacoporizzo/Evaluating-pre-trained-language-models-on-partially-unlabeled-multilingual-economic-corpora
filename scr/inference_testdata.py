@@ -8,8 +8,8 @@ from transformers import (AutoModelForSequenceClassification,
                           pipeline)
 
 # Import test data and model path
-test_data = pickle.load(open('data/data_v7/test_data.pkl', 'rb'))
-model_path = 'results/bert_v7/checkpoint-3560'
+test_data = pickle.load(open('data/data_bert/test_data.pkl', 'rb'))
+model_path = 'bert/checkpoint-3560'
 
 # Load model
 tokenizer = AutoTokenizer.from_pretrained('bert-base-cased')
@@ -23,5 +23,5 @@ classifier = pipeline("text-classification", model = model, return_all_scores = 
 prediction = classifier(test_data['text'])
 
 # Save predictions
-with open('prediction_test.pkl', 'wb') as fp:
+with open('data/prediction_test.pkl', 'wb') as fp:
     pickle.dump(prediction, fp)

@@ -9,8 +9,8 @@ from utils.doclevel import DocLevel
 
 ### Evaluation on sentence level
 # Import test data and predictions
-test_data = pickle.load(open('data/data_v7/test_data.pkl', 'rb'))
-predictions = pickle.load(open('data/data_v7/prediction_test_fourthepoch.pkl', 'rb'))
+test_data = pickle.load(open('data/data_bert/test_data.pkl', 'rb'))
+predictions = pickle.load(open('data/data_bert/prediction_test_fourthepoch.pkl', 'rb'))
 
 # Evaluate results
 helper = Helper()

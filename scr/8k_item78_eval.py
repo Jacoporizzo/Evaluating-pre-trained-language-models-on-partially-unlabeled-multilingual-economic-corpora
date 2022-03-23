@@ -77,8 +77,49 @@ docs = DocLevel()
 doc_labels = docs.labels_8k(data)
 doc_predictions = docs.predictions_8k(data, predictions, threshold = 0.4)
 
-doc_cls = docs.remove_empty_class(doc_labels, doc_predictions)
+doc_cls = docs.remove_empty_class(doc_labels, doc_predictions).reset_index(drop=True)
 
-doc_true = [np.nonzero(doc_cls['label_true'][i])[0][0] for i in range(len(doc_cls))]
+doc_true = [[np.nonzero(doc_cls['label_true'][i])[0][0]] for i in range(len(doc_cls))]
+        
+doc_pred = []
+for j in range(len(doc_cls)):
+    arr = np.nonzero(doc_cls['label_predicted'][j])
+    multi = []
+    for i in range(len(arr[0])):
+        multi.append(arr[0][i])
+    doc_pred.append(multi)
+    
+doc_true_names = []
+for i in doc_true:
+    for key in dicts:
+        if key in i:
+            doc_true_names.append(dicts[key])
 
-doc_pred = [np.nonzero(doc_cls['label_predicted'][j]) for j in range(len(doc_cls))]
+doc_predicted_names = []
+for i in doc_pred:
+    if len(i) == 0:
+        doc_predicted_names.append(['NC'])
+    elif len(i) == 1:
+        for j in i:
+            doc_predicted_names.append([dicts[j]])
+    else:
+        multi = []
+        for t in i:
+            multi.append(dicts[t])
+        doc_predicted_names.append(multi)
+        
+doc_df = pd.DataFrame({'true': [item for item in doc_true for item in item],
+                       'prediction': doc_pred,
+                       'true_labels': doc_true_names,
+                       'prediction_labels': doc_predicted_names})
+
+doc_dividende = doc_df[doc_df["true"] == 6].reset_index(drop=True)
+doc_ruckkauf = doc_df[doc_df['true'] == 17].reset_index(drop=True)
+
+doc_dividende_pred = [item for items in doc_dividende['prediction_labels'] for item in items]
+doc_dividende_sum = pd.DataFrame.from_dict(dict([[x, doc_dividende_pred.count(x)] for x in set(doc_dividende_pred)]), orient = 'index').reset_index().rename(columns = {0: 'total'})
+doc_dividende_sum['proportion'] = doc_dividende_sum['total']/(sum(doc_dividende_sum['total']))
+
+doc_ruckkauf_pred = [item for items in doc_ruckkauf['prediction_labels'] for item in items]
+doc_ruckkauf_sum = pd.DataFrame.from_dict(dict([[x, doc_ruckkauf_pred.count(x)] for x in set(doc_ruckkauf_pred)]), orient = 'index').reset_index().rename(columns = {0: 'total'})
+doc_ruckkauf_sum['proportion'] = doc_ruckkauf_sum['total']/(sum(doc_ruckkauf_sum['total']))

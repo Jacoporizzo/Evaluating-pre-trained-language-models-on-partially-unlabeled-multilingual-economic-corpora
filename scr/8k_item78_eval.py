@@ -4,6 +4,7 @@ Evaluation of predictions for items 7 and 8
 import pickle
 from utils.helpers import Helper
 from utils.doclevel import DocLevel
+from utils.plots import PlotData
 import plotnine as pn
 import pandas as pd
 import numpy as np
@@ -13,59 +14,37 @@ data = pickle.load(open('data/split_8k_only78.pkl', 'rb'))
 predictions = pickle.load(open('data/predictions_8k_items78.pkl', 'rb'))
 
 helper = Helper()
+plot = PlotData()
 
 true_labels = helper.actual_labels(data['label'])
+
+true_names = plot.labels_names(true_labels)
 
 predicted_thr = helper.threshold_classification(predictions, threshold = 0.4)
 predicted = helper.predicted_labels(predicted_thr)
 
+pred_names = plot.labels_names(predicted)
+
 # Plot predicted labels
-lab_names = helper.get_labels_names()
-dicts = dict(zip(range(0,22), lab_names))
-
-true_names = []
-for i in true_labels:
-    for key in dicts:
-        if key in i:
-            true_names.append(dicts[key])
-
-predicted_names = []
-for i in predicted:
-    if len(i) == 0:
-        predicted_names.append(['NC'])
-    elif len(i) == 1:
-        for j in i:
-            predicted_names.append([dicts[j]])
-    else:
-        multi = []
-        for t in i:
-            multi.append(dicts[t])
-        predicted_names.append(multi)
-        
 df = pd.DataFrame({'true': [item for item in true_labels for item in item],
                    'prediction': predicted,
                    'true_labels': true_names,
-                   'prediction_labels': predicted_names})
+                   'prediction_labels': pred_names})
 
 dividende = df[df["true"] == 6].reset_index(drop=True)
 ruckkauf = df[df['true'] == 17].reset_index(drop=True)
 
-dividende_pred = [item for items in dividende['prediction_labels'] for item in items]
-dividende_sum = pd.DataFrame.from_dict(dict([[x, dividende_pred.count(x)] for x in set(dividende_pred)]), orient = 'index').reset_index().rename(columns = {0: 'total'})
-dividende_sum['proportion'] = dividende_sum['total']/(sum(dividende_sum['total']))
-
-ruckkauf_pred = [item for items in ruckkauf['prediction_labels'] for item in items]
-ruckkauf_sum = pd.DataFrame.from_dict(dict([[x, ruckkauf_pred.count(x)] for x in set(ruckkauf_pred)]), orient = 'index').reset_index().rename(columns = {0: 'total'})
-ruckkauf_sum['proportion'] = ruckkauf_sum['total']/(sum(ruckkauf_sum['total']))
+divids = plot.labels_complete_df(dividende['prediction_labels'])
+rucks = plot.labels_complete_df(ruckkauf['prediction_labels'])
 
 # Plot for Dividende class (item 7) prediction
-(pn.ggplot(dividende_sum, pn.aes(x = 'index', y = 'proportion'))
+(pn.ggplot(divids, pn.aes(x = 'label', y = 'proportion'))
      + pn.geom_col(color = 'blue', fill = 'blue')
      + pn.labs(y = 'Relative frequency', x = '', title = "Predicted labels for items 7")
      + pn.theme(axis_text_x = pn.element_text(angle = 90)))
 
 # Plot for Ruckkauf class (item 8) prediction
-(pn.ggplot(ruckkauf_sum, pn.aes(x = 'index', y = 'proportion'))
+(pn.ggplot(rucks, pn.aes(x = 'label', y = 'proportion'))
      + pn.geom_col(color = 'blue', fill = 'blue')
      + pn.labs(y = 'Relative frequency', x = '', title = "Predicted labels for items 8")
      + pn.theme(axis_text_x = pn.element_text(angle = 90)))
@@ -77,49 +56,22 @@ docs = DocLevel()
 doc_labels = docs.labels_8k(data)
 doc_predictions = docs.predictions_8k(data, predictions, threshold = 0.4)
 
-doc_cls = docs.remove_empty_class(doc_labels, doc_predictions).reset_index(drop=True)
+# Remove irrelevant class. ATTENTION: Output "irrelevant" is the "empty" class
+doc_cls = docs.remove_irrelevant_class(doc_labels, doc_predictions)
 
-doc_true = [[np.nonzero(doc_cls['label_true'][i])[0][0]] for i in range(len(doc_cls))]
+doc_true_int = plot.labels_doc(doc_cls)
+doc_pred_int = plot.labels_doc(doc_cls, prediction = True)
         
-doc_pred = []
-for j in range(len(doc_cls)):
-    arr = np.nonzero(doc_cls['label_predicted'][j])
-    multi = []
-    for i in range(len(arr[0])):
-        multi.append(arr[0][i])
-    doc_pred.append(multi)
-    
-doc_true_names = []
-for i in doc_true:
-    for key in dicts:
-        if key in i:
-            doc_true_names.append(dicts[key])
+doc_true_names = plot.labels_names(doc_true_int)
+doc_pred_names = plot.labels_names(doc_pred_int)
 
-doc_predicted_names = []
-for i in doc_pred:
-    if len(i) == 0:
-        doc_predicted_names.append(['NC'])
-    elif len(i) == 1:
-        for j in i:
-            doc_predicted_names.append([dicts[j]])
-    else:
-        multi = []
-        for t in i:
-            multi.append(dicts[t])
-        doc_predicted_names.append(multi)
-        
-doc_df = pd.DataFrame({'true': [item for item in doc_true for item in item],
-                       'prediction': doc_pred,
+doc_df = pd.DataFrame({'true': [item for item in doc_true_int for item in item],
+                       'prediction': doc_pred_int,
                        'true_labels': doc_true_names,
-                       'prediction_labels': doc_predicted_names})
+                       'prediction_labels': doc_pred_names})
 
 doc_dividende = doc_df[doc_df["true"] == 6].reset_index(drop=True)
 doc_ruckkauf = doc_df[doc_df['true'] == 17].reset_index(drop=True)
 
-doc_dividende_pred = [item for items in doc_dividende['prediction_labels'] for item in items]
-doc_dividende_sum = pd.DataFrame.from_dict(dict([[x, doc_dividende_pred.count(x)] for x in set(doc_dividende_pred)]), orient = 'index').reset_index().rename(columns = {0: 'total'})
-doc_dividende_sum['proportion'] = doc_dividende_sum['total']/(sum(doc_dividende_sum['total']))
-
-doc_ruckkauf_pred = [item for items in doc_ruckkauf['prediction_labels'] for item in items]
-doc_ruckkauf_sum = pd.DataFrame.from_dict(dict([[x, doc_ruckkauf_pred.count(x)] for x in set(doc_ruckkauf_pred)]), orient = 'index').reset_index().rename(columns = {0: 'total'})
-doc_ruckkauf_sum['proportion'] = doc_ruckkauf_sum['total']/(sum(doc_ruckkauf_sum['total']))
+doc_divids = plot.labels_complete_df(doc_dividende['prediction_labels'])
+doc_rucks = plot.labels_complete_df(doc_ruckkauf['prediction_labels'])

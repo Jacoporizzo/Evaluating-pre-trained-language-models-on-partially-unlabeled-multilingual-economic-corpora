@@ -49,6 +49,7 @@ docs = DocLevel()
 items_labels = docs.labels_8k(data)
 items_predictions = docs.predictions_8k(data, predictions, threshold = 0.4)
 
+# Remove irrelevant class. ATTENTION: Output "irrelevant" is the "empty" class
 items_cls = docs.remove_irrelevant_class(items_labels, items_predictions)
 
 doc_pred = plot.labels_doc(items_cls, prediction = True)

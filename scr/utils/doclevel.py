@@ -237,7 +237,7 @@ class DocLevel:
         acc = accuracy_score(bin_true, bin_preds)
 
         if level == 'global':
-            pre, rec, f1, _ = precision_recall_fscore_support(bin_true, bin_preds, average = average)
+            pre, rec, f1, _ = precision_recall_fscore_support(bin_true, bin_preds, average = average, zero_division = 0)
             metrics = {'accuracy': acc,
                        'f1': f1,
                        'precision': pre,
@@ -245,7 +245,7 @@ class DocLevel:
         else:
             labels_names = self.helper.get_labels_names()
             labels_names.remove('Empty')
-            pre, rec, f1, sup = precision_recall_fscore_support(bin_true, bin_preds)
+            pre, rec, f1, sup = precision_recall_fscore_support(bin_true, bin_preds, zero_division = 0)
             metrics = pd.DataFrame({'labels': labels_names,
                                     'precision': pre,
                                     'recall': rec,

@@ -95,4 +95,4 @@ class PlotData:
         labs_df = pd.DataFrame.from_dict(dict([[x, labs.count(x)] for x in set(labs)]), orient = 'index').rename(columns = {0 : 'total'})
         labs_df['proportion'] = labs_df['total']/sum(labs_df['total'])
         
-        return labs_df
+        return labs_df.reset_index().rename(columns={'index': 'label'})

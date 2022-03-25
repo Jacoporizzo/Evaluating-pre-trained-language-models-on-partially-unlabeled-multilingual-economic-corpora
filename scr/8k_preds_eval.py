@@ -30,7 +30,8 @@ docs = DocLevel()
 items_labels = docs.labels_8k(data)
 items_predictions = docs.predictions_8k(data, predictions, threshold = 0.4)
 
-items_cls = docs.remove_empty_class(items_labels, items_predictions)
+# Remove irrelevant class. ATTENTION: Output "irrelevant" is the "empty" class
+items_cls = docs.remove_irrelevant_class(items_labels, items_predictions)
 
 items_local = docs.doc_evaluations(items_cls['label_true'], items_cls['label_predicted'], 'local')
 items_global = docs.doc_evaluations(items_cls['label_true'], items_cls['label_predicted'])

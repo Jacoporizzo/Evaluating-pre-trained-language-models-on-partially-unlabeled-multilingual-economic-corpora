@@ -239,14 +239,14 @@ class Helper:
         acc = accuracy_score(true, pred)
 
         if level == 'global':
-            precision, recall, f1, _ = precision_recall_fscore_support(true, pred, average = average)
+            precision, recall, f1, _ = precision_recall_fscore_support(true, pred, average = average, zero_division = 0)
             metrics = {'accuracy': acc,
                         'f1': f1,
                         'precision': precision,
                         'recall': recall}
         else:
             lab_names = self.get_labels_names()
-            precision, recall, f1, _ = precision_recall_fscore_support(true, pred)
+            precision, recall, f1, _ = precision_recall_fscore_support(true, pred, zero_division = 0)
             metrics = pd.DataFrame({'labels': lab_names,
                                     'precision': precision,
                                     'recall': recall,

@@ -143,7 +143,51 @@ class DocLevel:
         df['to_remove'] = to_remove
         df.drop(df[df['to_remove'] == True].index, inplace = True)
         
-        return df
+        return df.reset_index(drop = True)
+
+    def remove_irrelevant_class(self, true_labels, predicted_labels):
+        '''
+        Remove truth and prediction for the class "Irrelevant" and consequently
+        all those rows (i.e. documents) which are labelled only in this class
+
+        Parameters
+        ----------
+        true_labels : dataframe
+            Pandas df containing binarized true labels for each hash.
+        predicted_labels : dataframe
+            Pandas df containing binarized predicted labels for each hash.
+
+        Returns
+        -------
+        df : dataframe
+            Pandas df with binarized truth and prediction.
+
+        '''
+        data = pd.merge(true_labels, predicted_labels, on = 'hash', how = 'inner', suffixes = ('_true', '_predicted'))
+        df = data.copy()
+        
+        # Remove penultimate element from both labels vars, since this represents the irrelevant class
+        true, pred = [], []
+        for i in df['label_true']:
+            true.append([x for p, x in enumerate(i) if p != 20])
+            
+        for j in df['label_predicted']:
+            pred.append([x for p, x in enumerate(j) if p != 20])
+
+        df['label_true'] = true
+        df['label_predicted'] = pred
+        
+        to_remove = []
+        for l in range(len(df)):
+            if ((all(t == 0 for t in df['label_true'][l])) or (all(p == 0 for p in df['label_predicted'][l]))):
+                to_remove.append(True)
+            else:
+                to_remove.append(False)
+        
+        df['to_remove'] = to_remove
+        df.drop(df[df['to_remove'] == True].index, inplace = True)
+        
+        return df.reset_index(drop = True)
 
     def doc_evaluations(self, true_labels, predicted_labels, level = 'global', average = 'macro'):
         '''

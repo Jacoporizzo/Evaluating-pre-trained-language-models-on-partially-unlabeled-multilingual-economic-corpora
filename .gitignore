@@ -136,6 +136,8 @@ scr/data/
 scr/data_old/
 images/
 scr/bert/
+scr/bert_old/
+scr/bert_nodrop/
 models/
 jupyter_notebooks/
 

@@ -7,6 +7,7 @@ hub.
 '''
 import pickle
 import numpy as np
+import torch
 from datasets import Dataset
 from utils.dynamicpad import DynamicPadDataset
 from sklearn.metrics import precision_recall_fscore_support, accuracy_score
@@ -99,6 +100,9 @@ def compute_metric(preds):
 
 # Initialize model and start trainig (i.e. finetuning)
 model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels = 22, problem_type = 'multi_label_classification')
+
+device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+model.to(device)
 # Modify dropout prob within the Encoder (default to 0.1, see BertConfig)
 # model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels = 22, hidden_dropout_prob = 0.35, problem_type = 'multi_label_classification')
 trainer = Trainer(

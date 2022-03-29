@@ -133,6 +133,7 @@ dmypy.json
 
 # various folders
 scr/data/
+scr/data_old/
 images/
 scr/bert/
 models/

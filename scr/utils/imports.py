@@ -73,7 +73,7 @@ class Import:
         gold_hashs = data_gold['Hashs'].unique()
         german_golds = german[german['hash'].isin(gold_hashs)].reset_index(drop = True)
 
-        english_forlabel = english.merge(german_golds, how = 'inner', on = ['dateText', 'timeText'])
+        english_forlabel = english.merge(german_golds, how = 'inner', on = ['dateText', 'timeText', 'compName'])
         return english_forlabel
 
     def importgold(self):

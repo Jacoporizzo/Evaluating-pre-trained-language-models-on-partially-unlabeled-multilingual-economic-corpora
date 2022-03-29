@@ -39,10 +39,6 @@ helper = Helper()
 df_finetune = helper.get_inputs(english_labelled)
 df_finetune.to_pickle('data/df_finetune.pkl')
 
-# Create df with document-level labelled instances
-df_fulltext = helper.fulltext_labels(english_labelled)
-df_fulltext.to_pickle('data/labelled_doc.pkl')
-
 # Create df with 8k items linked to german classes
 forms8k = imp.import8k()
 linked_data = helper.link_classes(forms8k)

@@ -18,6 +18,29 @@ gold_data = imp.importgold()
 labels = gold_data.iloc[:,4:26]
 bars = labels.sum(axis = 0)
 
+category =  ['Earnings',
+             'SEO',
+             'Management',
+             'Guidance',
+             'Gewinnwarnung',
+             'Beteiligung',
+             'Dividende',
+             'Restructuring',
+             'Debt',
+             'Law',
+             'Großauftrag',
+             'Squeeze',
+             'Insolvenzantrag',
+             'Insolvenzplan',
+             'Delay',
+             'Split',
+             'Pharma_Good',
+             'Rückkauf',
+             'Real_Invest',
+             'Delisting',
+             'Irrelevant',
+             'Empty']
+
 bars_df = bars.reset_index().rename(columns = {0: 'total'})
 (pn.ggplot(bars_df, pn.aes(x = 'index', y = 'total'))
      + pn.geom_col(color = 'blue', fill = 'blue')
@@ -25,9 +48,10 @@ bars_df = bars.reset_index().rename(columns = {0: 'total'})
      + pn.theme(axis_text_x = pn.element_text(angle = 90)))
 
 bars_df['proportion'] = bars_df['total']/sum(bars_df['total'])
+bars_df['index'] = pd.Categorical(bars_df['index'], categories = category)
 (pn.ggplot(bars_df, pn.aes(x = 'index', y = 'proportion'))
      + pn.geom_col(color = 'blue', fill = 'blue')
-     + pn.labs(y = 'Relative frequency', x = '', title = "German goldstandards' true labels")
+     + pn.labs(y = 'Relative frequency', x = '', title = "Classes distribution")
      + pn.theme(axis_text_x = pn.element_text(angle = 90)))
 
 ###########################################################

@@ -15,7 +15,7 @@ from transformers import (AutoModelForSequenceClassification,
                           pipeline)
 
 # Load split 8k data
-data = pickle.load(open('data/splitted_8k.pkl', 'rb'))
+data = pickle.load(open('data/8k_split.pkl', 'rb'))
 
 # Convert data and extract only items 7 and 8,
 # i.e. according to our link 6 and 17. Save df.
@@ -30,7 +30,7 @@ df_only78 = df[(df['idx_label'] == 6) | (df['idx_label'] == 17)]
 df_only78 = df_only78.reset_index(drop = True)
 df_inf = Dataset.from_pandas(df_only78)
 
-with open('data/split_8k_only78.pkl', 'wb') as fp:
+with open('data/8k_split_only78.pkl', 'wb') as fp:
     pickle.dump(df_inf, fp)
 
 # Load model and tokenizer

@@ -46,7 +46,7 @@ manual_trans['Manual_equals_output'].sum() / len(manual_trans['Manual_equals_out
 evaluation = Evaluation()
 
 equality_check = evaluation.is_equal(manual_trans)
-confusion_matrix = evaluation.create_confusion(equality_check)
+confusion_matrix = evaluation.create_confusionTN(equality_check)
 
 # Compute evaluations
 true_positives = confusion_matrix['Predicted_1']['Actual_1']

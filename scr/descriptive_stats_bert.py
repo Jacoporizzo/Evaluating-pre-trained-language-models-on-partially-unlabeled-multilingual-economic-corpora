@@ -1,7 +1,6 @@
 '''
 Descriptive statistics for the results and the
-training process of the finetuned bert-base-cased V5
-model.
+training process of the fine-tuned BERT.
 '''
 import json
 import pickle
@@ -10,7 +9,7 @@ import plotnine as pn
 from utils.helpers import Helper
 
 # Import trainer state data and extract relevant info
-eval_data = json.load(open('results/bert_v7/checkpoint-7120/trainer_state.json', 'r'))
+eval_data = json.load(open('bert/bert_nodrop/checkpoint-7032/trainer_state.json', 'r'))
 performance = eval_data['log_history']
 
 # Split into evaluation metrics and general info
@@ -48,7 +47,7 @@ df_comparison = pd.DataFrame({'epoch': df_metrics['epoch'],
                                 labels = ['Train', 'Validation']))
 
 # Absolute and relative freq for test datas' true labels
-test_data = pickle.load(open('data/data_v7/test_data.pkl', 'rb'))
+test_data = pickle.load(open('data/data_bert_nodrop/test_data.pkl', 'rb'))
 test_labels = []
 for lab in test_data['label']:
     test_labels.append([idx for idx in range(len(lab)) if lab[idx] == 1])
@@ -77,7 +76,7 @@ labs_df['proportion'] = labs_df['total']/sum(labs_df['total'])
      + pn.theme(axis_text_x = pn.element_text(angle = 90)))
 
 # Absolute and realtive freq for test datas' predicted labels
-test_pred = pickle.load(open('data/data_v7/prediction_test_fourthepoch.pkl', 'rb'))
+test_pred = pickle.load(open('data/data_bert_nodrop/prediction_test_fourthepoch.pkl', 'rb'))
 preds = helper.threshold_classification(test_pred, threshold = 0.4)
 pred_labels = helper.predicted_labels(preds)
     

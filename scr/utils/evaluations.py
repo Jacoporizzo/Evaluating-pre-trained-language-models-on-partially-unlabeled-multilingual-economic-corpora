@@ -153,7 +153,7 @@ class Evaluation:
                                            df_conf['Model_output'],
                                            rownames = ['Actual'], colnames = ['Predicted'])
             confusion_matrix.columns = ['Predicted_0', 'Predicted_1']
-            confusion_matrix.index = ['Actual_0', 'Actual_1']
+            confusion_matrix.index = ['Manual_0', 'Manual_1']
         
         # Shape of output matrix is the following
         #        Prediction (SBERT's output)

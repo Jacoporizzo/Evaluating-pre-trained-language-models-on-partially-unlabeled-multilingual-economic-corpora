@@ -46,7 +46,7 @@ df_sent_split = df_sent_split.reset_index(drop = True)
 df_sent_split.drop('length', axis = 1, inplace = True)
 df_split = Dataset.from_pandas(df_sent_split)
 
-with open('data/splitted_8k.pkl','wb') as fp:
+with open('data/8k_split.pkl','wb') as fp:
     pickle.dump(df_split, fp)
 
 # Remove documents with item 7 and 8 for the first step and save. Removed
@@ -60,7 +60,7 @@ df_wo78 = df_sent_split[(df_sent_split['idx_label'] != 6) & (df_sent_split['idx_
 df_wo78 = df_wo78.reset_index(drop = True)
 df_inf = Dataset.from_pandas(df_wo78)
 
-with open('data/8k_wo78.pkl', 'wb') as fp:
+with open('data/8k_split_wo78.pkl', 'wb') as fp:
     pickle.dump(df_inf, fp)
 
 # Load model and tokenizer

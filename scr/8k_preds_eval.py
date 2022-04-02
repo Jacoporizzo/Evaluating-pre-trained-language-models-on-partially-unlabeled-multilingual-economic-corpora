@@ -7,7 +7,7 @@ from utils.doclevel import DocLevel
 
 ### Evaluation on sentence level
 # Import 8k data and predictions
-data = pickle.load(open('data/8k_wo78.pkl', 'rb'))
+data = pickle.load(open('data/8k_split_wo78.pkl', 'rb'))
 predictions = pickle.load(open('data/predictions_8k.pkl', 'rb'))
 
 # Evaluate results

@@ -9,7 +9,7 @@ import plotnine as pn
 from utils.helpers import Helper
 
 # Import trainer state data and extract relevant info
-eval_data = json.load(open('bert/bert_nodrop/checkpoint-7032/trainer_state.json', 'r'))
+eval_data = json.load(open('bert_nodrop/checkpoint-7032/trainer_state.json', 'r'))
 performance = eval_data['log_history']
 
 # Split into evaluation metrics and general info
@@ -28,7 +28,7 @@ df_general = pd.DataFrame(general)
      + pn.geom_point()
      + pn.scale_x_continuous(name="Epoch", limits=[1, 8], 
                              breaks = [1, 2, 3, 4, 5, 6, 7, 8])
-     + pn.labs(y = 'Accuracy', x = 'Epoch', title = 'Accuracy on evaluation dataset per epoch'))
+     + pn.labs(y = 'Accuracy', x = 'Epoch', title = 'Accuracy on validation dataset per epoch'))
 
 # Validation and training loss (loss_trainevalset)
 df_comparison = pd.DataFrame({'epoch': df_metrics['epoch'],

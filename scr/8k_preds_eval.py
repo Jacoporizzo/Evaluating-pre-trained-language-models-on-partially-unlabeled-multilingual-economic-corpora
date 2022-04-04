@@ -6,7 +6,7 @@ from utils.helpers import Helper
 from utils.doclevel import DocLevel
 
 ### Evaluation on sentence level
-# Import 8k data and predictions
+# Import 8k data and predictions (according to the one for the epoch)
 data = pickle.load(open('data/8k_split_wo78.pkl', 'rb'))
 predictions = pickle.load(open('data/predictions_8k.pkl', 'rb'))
 

@@ -7,6 +7,8 @@ import pickle
 import pandas as pd
 import plotnine as pn
 from utils.imports import Import
+from utils.helpers import Helper
+from utils.plots import PlotData
 
 ###########################################################
 ### BASE goldstandards dataset
@@ -79,4 +81,29 @@ english_bars_df['proportion'] = english_bars_df['total']/sum(english_bars_df['to
 (pn.ggplot(english_bars_df, pn.aes(x = 'index', y = 'proportion'))
      + pn.geom_col(color = 'blue', fill = 'blue')
      + pn.labs(y = 'Relative freqeuncy', x = '', title = "English goldstandards' true labels")
+     + pn.theme(axis_text_x = pn.element_text(angle = 90)))
+
+#########################################################
+## Forms 8k descriptive stats
+
+forms = pickle.load(open('data/8k_split.pkl', 'rb'))
+forms_df = forms.to_pandas()
+
+helper = Helper()
+plot = PlotData()
+
+true_labels = helper.actual_labels(forms_df['label'])
+
+true_names = plot.labels_names(true_labels)
+labs = plot.labels_complete_df(true_names)
+
+categories_8k = ['Earnings', 'SEO', 'Management', 'Guidance', 'Gewinnwarnung',
+                 'Beteiligung', 'Dividende', 'Restructuring', 'Debt', 
+                 'Insolvenzantrag', 'Insolvenzplan', 'Split', 'Rückkauf',
+                 'Real_Invest', 'Delisting']
+
+labs['label'] = pd.Categorical(labs['label'], categories = categories_8k)
+(pn.ggplot(labs, pn.aes(x = 'label', y = 'proportion'))
+     + pn.geom_col(color = 'blue', fill = 'blue')
+     + pn.labs(y = 'Relative frequency', x = '', title = "Forms 8-K classes distribution")
      + pn.theme(axis_text_x = pn.element_text(angle = 90)))

@@ -10,8 +10,8 @@ import pandas as pd
 import numpy as np
 
 # Import predictions
-data = pickle.load(open('data/split_8k_only78.pkl', 'rb'))
-predictions = pickle.load(open('data/predictions_8k_items78.pkl', 'rb'))
+data = pickle.load(open('data/8k_split_only78.pkl', 'rb'))
+predictions = pickle.load(open('data/predictions_8k_items78_thirdepoch.pkl', 'rb'))
 
 helper = Helper()
 plot = PlotData()

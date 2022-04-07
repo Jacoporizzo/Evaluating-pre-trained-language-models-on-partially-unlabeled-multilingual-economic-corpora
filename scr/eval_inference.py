@@ -10,7 +10,7 @@ from utils.doclevel import DocLevel
 ### Evaluation on sentence level
 # Import test data and predictions
 test_data = pickle.load(open('data/data_bert_nodrop/test_data.pkl', 'rb'))
-predictions = pickle.load(open('data/data_bert_nodrop/prediction_test_fourthepoch.pkl', 'rb'))
+predictions = pickle.load(open('data/data_bert_nodrop/prediction_test_thirdepoch.pkl', 'rb'))
 
 # Evaluate results
 helper = Helper()
@@ -19,7 +19,7 @@ helper = Helper()
 true_labels = helper.actual_labels(test_data['label'])
 
 # Get predicted labels for test data
-predicted_labels_scores = helper.threshold_classification(predictions, threshold = 0.4)
+predicted_labels_scores = helper.threshold_classification(predictions, threshold = 0.45)
 predicted_labels = helper.predicted_labels(predicted_labels_scores)
 
 # Compute evaluation metrics
@@ -30,7 +30,7 @@ scores_local = helper.evaluation_scores(true_labels, predicted_labels, level = '
 docs = DocLevel()
 
 document_labels = docs.doc_labels(test_data)
-document_predictions = docs.doc_predictions(test_data, predictions, threshold = 0.4)
+document_predictions = docs.doc_predictions(test_data, predictions, threshold = 0.45)
 
 document_cls = docs.remove_empty_class(document_labels, document_predictions)
 

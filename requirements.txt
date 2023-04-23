@@ -54,7 +54,7 @@ isort==5.9.3
 jedi @ file:///C:/ci/jedi_1611341083684/work
 Jinja2==3.0.2
 jinja2-time==0.2.0
-joblib==1.0.1
+joblib==1.1.1
 jsonschema==4.0.1
 jupyter==1.0.0
 jupyter-client==6.1.12
